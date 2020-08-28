@@ -53,6 +53,22 @@ def convert_cell(value, output_format, idx_col, idx_row):
             logging.critical("Invalid date format '%s' in field %d on row %d "\
                 "(ignoring the header). Exiting..." % (value, idx_col, idx_row))
             sys.exit(18)
+    elif "Decimal" == output_format:
+        # Decimal numbers must be sent with 2 decimal places and
+        # *without* the decimal separator
+        try:
+            # Convert to float, multiply by 100, round without decimals,
+            # convert to integer (to drop the extra decimal values) then
+            # finally back to string...
+            converted_value = float(value)
+            converted_value = converted_value*100
+            converted_value = round(converted_value, 0)
+            converted_value = int(converted_value)
+            converted_value = str(converted_value)
+        except ValueError:
+            logging.critical("Invalid decimal format '%s' in field %d on row "\
+                "%d (ignoring the header). Exiting..." % (value, idx_col, idx_row))
+            sys.exit(19)
     else:
         converted_value = value
     return converted_value
