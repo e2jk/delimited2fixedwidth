@@ -27,7 +27,8 @@ class TestParseArgs(unittest.TestCase):
         with self.assertRaises(SystemExit) as cm, contextlib.redirect_stderr(f):
             parser = target.parse_args([])
         self.assertEqual(cm.exception.code, 2)
-        self.assertTrue("error: the following arguments are required: -i/--input, -o/--output, -c/--config" in f.getvalue())
+        self.assertTrue("error: the following arguments are required: " \
+            "-i/--input, -o/--output, -c/--config" in f.getvalue())
 
     def test_parse_args_valid_arguments(self):
         """
@@ -48,7 +49,9 @@ class TestParseArgs(unittest.TestCase):
 
 class TestLicense(unittest.TestCase):
     def test_license_file(self):
-        """Validate that the project has a LICENSE file, check part of its content"""
+        """
+        Validate that the project has a LICENSE file, check part of its content
+        """
         self.assertTrue(os.path.isfile("LICENSE"))
         with open('LICENSE') as f:
             s = f.read()
@@ -57,11 +60,14 @@ class TestLicense(unittest.TestCase):
             self.assertTrue("Copyright (c) 2020 Emilien Klein" in s)
 
     def test_license_mention(self):
-        """Validate that the script file contain a mention of the license"""
+        """
+        Validate that the script file contain a mention of the license
+        """
         with open('delimited2fixedwidth.py') as f:
             s = f.read()
             # Confirm it is the MIT License
-            self.assertTrue("#    This file is part of delimited2fixedwidth and is MIT-licensed." in s)
+            self.assertTrue("#    This file is part of delimited2fixedwidth " \
+                "and is MIT-licensed." in s)
 
 
 if __name__ == '__main__':
