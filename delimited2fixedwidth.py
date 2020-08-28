@@ -10,6 +10,15 @@ import os
 import csv
 
 
+def convert_content(input_content):
+    output_content = []
+    #TODO: This is a dummy conversion for now, just concatenating all the fields
+    for row in input_content:
+        output_content.append(''.join(row))
+
+    logging.debug("The output content:\n%s" % '\n'.join(output_content))
+    return output_content
+
 def read_input_file(input_file, delimiter, quotechar, skip_header, skip_footer):
     content = None
     with open(input_file, newline='') as csvfile:
@@ -73,7 +82,9 @@ def init():
         skip_header = 1
         skip_footer = 1
 
-        content = read_input_file(args.input, delimiter, quotechar, skip_header,
-            skip_footer)
+        input_content = read_input_file(args.input, delimiter, quotechar,
+            skip_header, skip_footer)
+
+        output_content = convert_content(input_content)
 
 init()
