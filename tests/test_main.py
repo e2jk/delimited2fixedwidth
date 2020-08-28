@@ -21,9 +21,6 @@ target = __import__("delimited2fixedwidth")
 
 
 class TestParseArgs(unittest.TestCase):
-    def setUp(self):
-        logging.basicConfig(level=logging.CRITICAL)
-
     def test_parse_args_no_arguments(self):
         """
         Test running the script without any of the required arguments
@@ -50,6 +47,8 @@ class TestParseArgs(unittest.TestCase):
             "-c", config_file])
         self.assertEqual(parser.input, input_file)
         self.assertEqual(parser.config, config_file)
+        self.assertEqual(parser.loglevel, logging.WARNING)
+        self.assertEqual(parser.logging_level, "WARNING")
 
     def test_parse_args_invalid_input_file(self):
         """
