@@ -15,11 +15,28 @@ def write_output_file(output_content, output_file):
     with open(output_file, "w") as ofile:
         ofile.write('\n'.join(output_content))
 
-def convert_content(input_content):
+def pad_output_value(val, output_format, length):
+    if output_format in ("Integer", "Decimal"):
+        # Numbers get padded with 0's added in front (to the left)
+        val = str(val).zfill(length)
+    else:
+        # Strings get padded with spaces added to the right
+        format_template = "{:<%d}" % length
+        val = format_template.format(val)
+    return val
+
+def convert_content(input_content, config):
     output_content = []
-    #TODO: This is a dummy conversion for now, just concatenating all the fields
-    for row in input_content:
-        output_content.append(''.join(row))
+    for idx_row, row in enumerate(input_content):
+        converted_row_content = []
+        for idx_col, cell in enumerate(row):
+            output_format = config[idx_col]["output_format"]
+            length = config[idx_col]["length"]
+            if config[idx_col]["skip_field"]:
+                cell = ""
+            padded_output_value = pad_output_value(cell, output_format, length)
+            converted_row_content.append(padded_output_value)
+        output_content.append(''.join(converted_row_content))
 
     logging.debug("The output content:\n%s" % '\n'.join(output_content))
     return output_content
@@ -43,7 +60,7 @@ def read_input_file(input_file, delimiter, quotechar, skip_header, skip_footer):
 
 def load_config(config_file):
     config = []
-    supported_output_formats = ("Numeric", "Date", "Time", "Text")
+    supported_output_formats = ("Integer", "Decimal", "Date", "Time", "Text")
     supported_skip_field = ("True", "False", "", None)
     logging.debug("Loading configuration %s" % config_file)
 
@@ -184,7 +201,7 @@ def init():
         input_content = read_input_file(args.input, delimiter, quotechar,
             skip_header, skip_footer)
 
-        output_content = convert_content(input_content)
+        output_content = convert_content(input_content, config)
 
         write_output_file(output_content, args.output)
 
