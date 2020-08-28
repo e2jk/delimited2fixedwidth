@@ -10,6 +10,10 @@ import os
 import csv
 
 
+def write_output_file(output_content, output_file):
+    with open(output_file, "w") as ofile:
+        ofile.write('\n'.join(output_content))
+
 def convert_content(input_content):
     output_content = []
     #TODO: This is a dummy conversion for now, just concatenating all the fields
@@ -44,6 +48,11 @@ def parse_args(arguments):
         action='store',
         required=True
     )
+    parser.add_argument("-o", "--output",
+        help="Specify the output file",
+        action='store',
+        required=True
+    )
 
     parser.add_argument(
         '-d', '--debug',
@@ -67,6 +76,10 @@ def parse_args(arguments):
     if not os.path.isfile(args.input):
         logging.critical("The specified input file does not exist. Exiting...")
         sys.exit(10)
+    if os.path.isfile(args.output):
+        logging.critical("The specified output file does already exist, will "\
+            "NOT overwrite. Exiting...")
+        sys.exit(11)
 
     logging.debug("These are the parsed arguments:\n'%s'" % args)
     return args
@@ -86,5 +99,7 @@ def init():
             skip_header, skip_footer)
 
         output_content = convert_content(input_content)
+
+        write_output_file(output_content, args.output)
 
 init()
