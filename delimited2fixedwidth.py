@@ -9,6 +9,7 @@ import logging
 import os
 import csv
 from openpyxl import load_workbook
+import re
 
 
 def write_output_file(output_content, output_file):
@@ -34,6 +35,15 @@ def convert_content(input_content, config):
             length = config[idx_col]["length"]
             if config[idx_col]["skip_field"]:
                 cell = ""
+            if "Time" == output_format:
+                m = re.match(r"(\d{2})(:)?(\d{2})", cell)
+                if m:
+                    cell = "%s%s" % (m.group(1), m.group(3))
+                else:
+                    logging.critical("Invalid time format '%s' in field %d on "\
+                        "row %d (ignoring the header). Exiting..." % (cell,
+                        idx_col+1, idx_row+1))
+                    sys.exit(17)
             padded_output_value = pad_output_value(cell, output_format, length)
             converted_row_content.append(padded_output_value)
         output_content.append(''.join(converted_row_content))
