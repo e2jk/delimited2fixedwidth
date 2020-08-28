@@ -50,6 +50,28 @@ class TestParseArgs(unittest.TestCase):
         self.assertEqual(parser.loglevel, logging.WARNING)
         self.assertEqual(parser.logging_level, "WARNING")
 
+    def test_parse_args_debug(self):
+        """
+        Test the --debug argument
+        """
+        input_file = "tests/sample_files/input1.txt"
+        output_file = "tests/sample_files/nonexistent_test_output.txt"
+        config_file = "tests/sample_files/configuration1.xlsx"
+        # Confirm the output file doesn't exist
+        if os.path.isfile(output_file):
+            os.remove(output_file)
+            self.assertFalse(os.path.isfile(output_file))
+        with self.assertLogs(level='DEBUG') as cm:
+            parser = target.parse_args(["-i", input_file, "-o", output_file,
+                "-c", config_file, "--debug"])
+        self.assertEqual(parser.loglevel, logging.DEBUG)
+        self.assertEqual(parser.logging_level, "DEBUG")
+        self.assertEqual(cm.output, ["DEBUG:root:These are the parsed " \
+            "arguments:\n'Namespace(config='tests/sample_files/configuration1" \
+            ".xlsx', input='tests/sample_files/input1.txt', logging_level=" \
+            "'DEBUG', loglevel=10, output='tests/sample_files/nonexistent_" \
+            "test_output.txt', overwrite_file=False)'"])
+
     def test_parse_args_invalid_input_file(self):
         """
         Test running the script with a non-existent input file as -i parameter
