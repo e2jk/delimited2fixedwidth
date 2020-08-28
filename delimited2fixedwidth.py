@@ -35,7 +35,8 @@ def read_input_file(input_file, delimiter, quotechar, skip_header, skip_footer):
         logging.debug("There are %d lines in the input file %s:" % (num_lines,\
             input_file))
         if skip_header > 0 or skip_footer > 0:
-            logging.debug("Skipping %d header and %d footer lines" % (skip_header, skip_footer))
+            logging.debug("Skipping %d header and %d footer lines" % \
+                (skip_header, skip_footer))
         for row in content:
             logging.debug(' ||| '.join(row))
     return content
@@ -108,8 +109,8 @@ def load_config(config_file):
     return config
 
 def parse_args(arguments):
-    parser = argparse.ArgumentParser(description="Convert files from delimited "\
-        "(e.g. CSV) to fixed width format")
+    parser = argparse.ArgumentParser(description="Convert files from "\
+        "delimited (e.g. CSV) to fixed width format")
 
     parser.add_argument("-i", "--input",
         help="Specify the input file",
