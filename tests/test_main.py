@@ -61,6 +61,8 @@ class TestParseArgs(unittest.TestCase):
         if os.path.isfile(output_file):
             os.remove(output_file)
             self.assertFalse(os.path.isfile(output_file))
+        # Confirm the input file doesn't exist
+        self.assertFalse(os.path.isfile(input_file))
         with self.assertRaises(SystemExit) as cm1, \
             self.assertLogs(level='CRITICAL') as cm2:
             parser = target.parse_args(["-i", input_file, "-o", output_file,
@@ -68,6 +70,27 @@ class TestParseArgs(unittest.TestCase):
         self.assertEqual(cm1.exception.code, 10)
         self.assertEqual(cm2.output, ["CRITICAL:root:The specified input " \
             "file does not exist. Exiting..."])
+
+    def test_parse_args_invalid_config_file(self):
+        """
+        Test running the script with a non-existent config file as -c parameter
+        """
+        input_file = "tests/sample_files/input1.txt"
+        output_file = "tests/sample_files/nonexistent_test_output.txt"
+        config_file = "tests/sample_files/nonexistent_configuration.xlsx"
+        # Confirm the output file doesn't exist
+        if os.path.isfile(output_file):
+            os.remove(output_file)
+            self.assertFalse(os.path.isfile(output_file))
+        # Confirm the config file doesn't exist
+        self.assertFalse(os.path.isfile(config_file))
+        with self.assertRaises(SystemExit) as cm1, \
+            self.assertLogs(level='CRITICAL') as cm2:
+            parser = target.parse_args(["-i", input_file, "-o", output_file,
+                "-c", config_file])
+        self.assertEqual(cm1.exception.code, 12)
+        self.assertEqual(cm2.output, ["CRITICAL:root:The specified " \
+            "configuration file does not exist. Exiting..."])
 
 
 class TestLicense(unittest.TestCase):
