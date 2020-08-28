@@ -1,5 +1,5 @@
 .venv-delimited2fixedwidth
-data/sample-*
+data/sample*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
