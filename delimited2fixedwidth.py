@@ -26,6 +26,17 @@ def pad_output_value(val, output_format, length):
         val = format_template.format(val)
     return val
 
+def convert_cell(value, output_format, idx_col, idx_row):
+    if "Time" == output_format:
+        m = re.match(r"(\d{2})(:)?(\d{2})", value)
+        if m:
+            value = "%s%s" % (m.group(1), m.group(3))
+        else:
+            logging.critical("Invalid time format '%s' in field %d on row %d "\
+                "(ignoring the header). Exiting..." % (value, idx_col, idx_row))
+            sys.exit(17)
+    return value
+
 def convert_content(input_content, config):
     output_content = []
     for idx_row, row in enumerate(input_content):
@@ -36,16 +47,8 @@ def convert_content(input_content, config):
 
             if config[idx_col]["skip_field"]:
                 cell = ""
-
-            if "Time" == output_format:
-                m = re.match(r"(\d{2})(:)?(\d{2})", cell)
-                if m:
-                    cell = "%s%s" % (m.group(1), m.group(3))
-                else:
-                    logging.critical("Invalid time format '%s' in field %d on "\
-                        "row %d (ignoring the header). Exiting..." % (cell,
-                        idx_col+1, idx_row+1))
-                    sys.exit(17)
+            else:
+                cell = convert_cell(cell, output_format, idx_col+1, idx_row+1)
 
             # Confirm that the length of the field (before padding) is less than
             # the maximum allowed length
