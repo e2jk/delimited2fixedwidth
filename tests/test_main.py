@@ -14,6 +14,7 @@ import os
 import io
 import contextlib
 import logging
+import tempfile
 
 sys.path.append('.')
 target = __import__("delimited2fixedwidth")
@@ -91,6 +92,28 @@ class TestParseArgs(unittest.TestCase):
         self.assertEqual(cm1.exception.code, 12)
         self.assertEqual(cm2.output, ["CRITICAL:root:The specified " \
             "configuration file does not exist. Exiting..."])
+
+    def test_parse_args_existing_output_file_no_overwrite(self):
+        """
+        Test running the script with an existing output file and without the
+        --overwrite-file parameter
+        """
+        input_file = "tests/sample_files/input1.txt"
+        config_file = "tests/sample_files/configuration1.xlsx"
+        # Create a temporary file and confirm it exists
+        (temp_fd, temp_output_file) = tempfile.mkstemp()
+        self.assertTrue(os.path.isfile(temp_output_file))
+        with self.assertRaises(SystemExit) as cm1, \
+            self.assertLogs(level='CRITICAL') as cm2:
+            parser = target.parse_args(["-i", input_file,
+                "-o", temp_output_file, "-c", config_file])
+        self.assertEqual(cm1.exception.code, 11)
+        self.assertEqual(cm2.output, ['CRITICAL:root:The specified output file '
+            'does already exist, will NOT overwrite. Add the `--overwrite-file`'
+            ' argument to allow overwriting. Exiting...'])
+        # Delete the temporary file created by the test
+        os.close(temp_fd)
+        os.remove(temp_output_file)
 
 
 class TestLicense(unittest.TestCase):
