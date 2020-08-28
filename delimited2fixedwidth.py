@@ -67,12 +67,13 @@ def init():
         # Parse the provided command-line arguments
         args = parse_args(sys.argv[1:])
 
-    #TODO: allow passing these as arguments to the script
-    delimiter = '^'
-    quotechar = '"'
-    skip_header = 1
-    skip_footer = 1
-    content = read_input_file(args.input, delimiter, quotechar, skip_header,
-        skip_footer)
+        #TODO: allow passing these as arguments to the script
+        delimiter = '^'
+        quotechar = '"'
+        skip_header = 1
+        skip_footer = 1
+
+        content = read_input_file(args.input, delimiter, quotechar, skip_header,
+            skip_footer)
 
 init()
