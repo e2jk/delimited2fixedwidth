@@ -57,6 +57,41 @@ class TestConvertCell(unittest.TestCase):
         self.assertEqual(cm2.output, ["CRITICAL:root:Invalid time format " \
             "'ab:cd' in field 2 on row 3 (ignoring the header). Exiting..."])
 
+    def test_convert_cell_decimal(self):
+        """
+        Test converting a valid decimal value.
+        Returns "cents" instead of "dollars"
+        """
+        output_value = target.convert_cell(1.36, "Decimal", 2, 3)
+        self.assertEqual(output_value, "136")
+
+    def test_convert_cell_decimal_integer(self):
+        """
+        Test converting a valid decimal value that was a simple integer.
+        Returns "cents" instead of "dollars"
+        """
+        output_value = target.convert_cell(2, "Decimal", 2, 3)
+        self.assertEqual(output_value, "200")
+
+    def test_convert_cell_decimal_rounding(self):
+        """
+        Test converting a valid decimal value, rounding the value
+        Returns "cents" instead of "dollars"
+        """
+        output_value = target.convert_cell(1.3678, "Decimal", 2, 3)
+        self.assertEqual(output_value, "137")
+
+    def test_convert_cell_decimal_invalid_alphanumeric(self):
+        """
+        Test converting an invalid decimal element, alphanumeric value
+        """
+        with self.assertRaises(SystemExit) as cm1, \
+            self.assertLogs(level='CRITICAL') as cm2:
+            output_value = target.convert_cell("ab:cd", "Decimal", 4, 5)
+        self.assertEqual(cm1.exception.code, 19)
+        self.assertEqual(cm2.output, ["CRITICAL:root:Invalid decimal format " \
+            "'ab:cd' in field 4 on row 5 (ignoring the header). Exiting..."])
+
 
 class TestPadOutputValue(unittest.TestCase):
     def test_pad_output_value_integer_int(self):
