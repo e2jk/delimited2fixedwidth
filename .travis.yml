@@ -1,0 +1,11 @@
+language: python
+python: 3.6
+# Ubuntu 20.04
+os: linux
+dist: focal
+# Command to install Python dependencies
+install:
+  - pip3 install -r requirements.txt
+# Command to run tests
+script:
+  - ./test.sh
