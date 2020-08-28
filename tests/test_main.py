@@ -46,6 +46,25 @@ class TestParseArgs(unittest.TestCase):
         self.assertEqual(parser.input, input_file)
         self.assertEqual(parser.config, config_file)
 
+    def test_parse_args_invalid_input_file(self):
+        """
+        Test running the script with a non-existent input file as -i parameter
+        """
+        input_file = "tests/sample_files/nonexistent_input.txt"
+        output_file = "tests/sample_files/nonexistent_test_output.txt"
+        config_file = "tests/sample_files/configuration1.xlsx"
+        # Confirm the output file doesn't exist
+        if os.path.isfile(output_file):
+            os.remove(output_file)
+            self.assertFalse(os.path.isfile(output_file))
+        f = io.StringIO()
+        with self.assertRaises(SystemExit) as cm, contextlib.redirect_stderr(f):
+            parser = target.parse_args(["-i", input_file, "-o", output_file,
+                "-c", config_file])
+        self.assertEqual(cm.exception.code, 10)
+        self.assertTrue("CRITICAL:root:The specified input file does not " \
+            "exist. Exiting..." in f.getvalue())
+
 
 class TestLicense(unittest.TestCase):
     def test_license_file(self):
