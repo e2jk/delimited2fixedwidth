@@ -10,12 +10,18 @@ import os
 import csv
 
 
-def read_input_file(input_file, delimiter, quotechar):
+def read_input_file(input_file, delimiter, quotechar, skip_header, skip_footer):
     content = None
     with open(input_file, newline='') as csvfile:
         content = csv.reader(csvfile, delimiter=delimiter, quotechar=quotechar)
-        logging.debug("Content of the input file %s:\n%s" % \
-            (input_file, content))
+        # Skip the header and footer if necessary
+        content = list(content)
+        num_lines = len(content)
+        content = content[skip_header: num_lines-skip_footer]
+        logging.debug("There are %d lines in the input file %s:" % (num_lines,\
+            input_file))
+        if skip_header > 0 or skip_footer > 0:
+            logging.debug("Skipping %d header and %d footer lines" % (skip_header, skip_footer))
         for row in content:
             logging.debug(' ||| '.join(row))
     return content
@@ -64,6 +70,9 @@ def init():
     #TODO: allow passing these as arguments to the script
     delimiter = '^'
     quotechar = '"'
-    content = read_input_file(args.input, delimiter, quotechar)
+    skip_header = 1
+    skip_footer = 1
+    content = read_input_file(args.input, delimiter, quotechar, skip_header,
+        skip_footer)
 
 init()
