@@ -20,6 +20,64 @@ sys.path.append('.')
 target = __import__("delimited2fixedwidth")
 
 
+class TestPadOutputValue(unittest.TestCase):
+    def test_pad_output_value_integer_int(self):
+        """
+        Test padding an integer, passed as integer
+        """
+        output_value = target.pad_output_value(22, "Integer", 10)
+        self.assertEqual(output_value, "0000000022")
+
+    def test_pad_output_value_integer_str(self):
+        """
+        Test padding an Decimal, passed as string
+        """
+        output_value = target.pad_output_value("15", "Integer", 8)
+        self.assertEqual(output_value, "00000015")
+
+    def test_pad_output_value_decimal_int(self):
+        """
+        Test padding a decimal, passed as integer
+        """
+        output_value = target.pad_output_value(2259, "Decimal", 9)
+        self.assertEqual(output_value, "000002259")
+
+    def test_pad_output_value_decimal_str(self):
+        """
+        Test padding a decimal, passed as string
+        """
+        output_value = target.pad_output_value("33287", "Decimal", 7)
+        self.assertEqual(output_value, "0033287")
+
+    def test_pad_output_value_integer_too_long(self):
+        """
+        Test padding an integer longer than the length: returns the same length
+        """
+        output_value = target.pad_output_value(2234, "Integer", 3)
+        self.assertEqual(output_value, "2234")
+
+    def test_pad_output_value_string(self):
+        """
+        Test padding a string
+        """
+        output_value = target.pad_output_value("This is short", "Text", 20)
+        self.assertEqual(output_value, "This is short       ")
+
+    def test_pad_output_value_string_nonsense_output_format(self):
+        """
+        Test padding a string, passing a nonsense output_format
+        """
+        output_value = target.pad_output_value("This is short", "blabla", 25)
+        self.assertEqual(output_value, "This is short            ")
+
+    def test_pad_output_value_string_as_int(self):
+        """
+        Test padding a string by passing an integer
+        """
+        output_value = target.pad_output_value(22, "Text", 10)
+        self.assertEqual(output_value, "22        ")
+
+
 class TestParseArgs(unittest.TestCase):
     def test_parse_args_no_arguments(self):
         """
