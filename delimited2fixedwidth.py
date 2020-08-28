@@ -10,6 +10,7 @@ import os
 import csv
 from openpyxl import load_workbook
 import re
+import datetime
 
 
 def write_output_file(output_content, output_file):
@@ -27,15 +28,34 @@ def pad_output_value(val, output_format, length):
     return val
 
 def convert_cell(value, output_format, idx_col, idx_row):
+    converted_value = ""
     if "Time" == output_format:
         m = re.match(r"(\d{2})(:)?(\d{2})", value)
         if m:
-            value = "%s%s" % (m.group(1), m.group(3))
+            converted_value = "%s%s" % (m.group(1), m.group(3))
         else:
             logging.critical("Invalid time format '%s' in field %d on row %d "\
                 "(ignoring the header). Exiting..." % (value, idx_col, idx_row))
             sys.exit(17)
-    return value
+    elif "Date (DD/MM/YYYY)" == output_format:
+        m = re.match(r"([0123]?\d)/([01]?\d)/(\d{4})", value)
+        if m:
+            year = m.group(3)
+            month = m.group(2).zfill(2)
+            day = m.group(1).zfill(2)
+            converted_value = "%s%s%s" % (year, month, day)
+            # Is it a valid date?
+            try:
+                datetime.datetime.strptime(converted_value, '%Y%m%d')
+            except ValueError:
+                converted_value = ""
+        if not converted_value:
+            logging.critical("Invalid date format '%s' in field %d on row %d "\
+                "(ignoring the header). Exiting..." % (value, idx_col, idx_row))
+            sys.exit(18)
+    else:
+        converted_value = value
+    return converted_value
 
 def convert_content(input_content, config):
     output_content = []
@@ -84,7 +104,7 @@ def read_input_file(input_file, delimiter, quotechar, skip_header, skip_footer):
 
 def load_config(config_file):
     config = []
-    supported_output_formats = ("Integer", "Decimal", "Date", "Time", "Text")
+    supported_output_formats = ("Integer", "Decimal", "Date (DD/MM/YYYY)", "Time", "Text")
     supported_skip_field = ("True", "False", "", None)
     logging.debug("Loading configuration %s" % config_file)
 
