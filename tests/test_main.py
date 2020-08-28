@@ -20,6 +20,44 @@ sys.path.append('.')
 target = __import__("delimited2fixedwidth")
 
 
+class TestConvertCell(unittest.TestCase):
+    def test_convert_cell_time_colon(self):
+        """
+        Test converting a valid time element with a colon separator
+        """
+        output_value = target.convert_cell("01:42", "Time", 2, 3)
+        self.assertEqual(output_value, "0142")
+
+    def test_convert_cell_time_nocolon(self):
+        """
+        Test converting a valid time element without a colon separator
+        """
+        output_value = target.convert_cell("0142", "Time", 2, 3)
+        self.assertEqual(output_value, "0142")
+
+    def test_convert_cell_time_invalid_numeric(self):
+        """
+        Test converting an invalid time element, numeric
+        """
+        with self.assertRaises(SystemExit) as cm1, \
+            self.assertLogs(level='CRITICAL') as cm2:
+            output_value = target.convert_cell("142", "Time", 2, 3)
+        self.assertEqual(cm1.exception.code, 17)
+        self.assertEqual(cm2.output, ["CRITICAL:root:Invalid time format " \
+            "'142' in field 2 on row 3 (ignoring the header). Exiting..."])
+
+    def test_convert_cell_time_invalid_alphanumeric(self):
+        """
+        Test converting an invalid time element, alphanumeric value
+        """
+        with self.assertRaises(SystemExit) as cm1, \
+            self.assertLogs(level='CRITICAL') as cm2:
+            output_value = target.convert_cell("ab:cd", "Time", 2, 3)
+        self.assertEqual(cm1.exception.code, 17)
+        self.assertEqual(cm2.output, ["CRITICAL:root:Invalid time format " \
+            "'ab:cd' in field 2 on row 3 (ignoring the header). Exiting..."])
+
+
 class TestPadOutputValue(unittest.TestCase):
     def test_pad_output_value_integer_int(self):
         """
