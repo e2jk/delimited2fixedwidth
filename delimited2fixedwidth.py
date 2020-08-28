@@ -8,6 +8,7 @@ import argparse
 import logging
 import os
 import csv
+from openpyxl import load_workbook
 
 
 def write_output_file(output_content, output_file):
@@ -39,6 +40,73 @@ def read_input_file(input_file, delimiter, quotechar, skip_header, skip_footer):
             logging.debug(' ||| '.join(row))
     return content
 
+def load_config(config_file):
+    config = []
+    supported_output_formats = ("Numeric", "Date", "Time", "Text")
+    supported_skip_field = ("True", "False", "", None)
+    logging.debug("Loading configuration %s" % config_file)
+
+    # Open the configuration file (an Excel .xlsx file)
+    wk = load_workbook(filename=config_file)
+    ws = wk.active # Get active worksheet or wk['some_worksheet']
+
+    # Analyze the header to identify the relevant columns
+    length_col = -1
+    output_format_col = -1
+    skip_field_col = -1
+    for row in ws.iter_rows(max_row=1):
+        for idx, cell in enumerate(row):
+            if "Length" == cell.value:
+                length_col = idx
+            elif "Output format" == cell.value:
+                output_format_col = idx
+            elif "Skip field" == cell.value:
+                skip_field_col = idx
+    column_indices = (length_col, output_format_col, skip_field_col)
+    if -1 in column_indices:
+        logging.critical("Invalid config file, missing one of the columns "\
+            "'Length', 'Output format' or 'Skip field'. Exiting...")
+        sys.exit(13)
+
+    # Loop over all the config rows (skipping the header)
+    for idx_row, row in enumerate(ws.iter_rows(min_row=2)):
+        config.append({})
+        for idx_col, cell in enumerate(row):
+            if idx_col == length_col:
+                config[idx_row]["length"] = -1
+                if isinstance(cell.value, int):
+                    config[idx_row]["length"] = cell.value
+                elif isinstance(cell.value, float) and cell.value.is_integer():
+                    config[idx_row]["length"] = int(cell.value)
+                if isinstance(cell.value, str) and cell.value.isnumeric():
+                    config[idx_row]["length"] = int(cell.value)
+                if config[idx_row]["length"] < 0:
+                    logging.critical("Invalid value '%s' for the 'Length' "\
+                        "column on row %d, must be a positive number. "\
+                        "Exiting..." % (cell.value, idx_row+2))
+                    sys.exit(14)
+            if idx_col == output_format_col:
+                if cell.value in supported_output_formats:
+                    config[idx_row]["output_format"] = cell.value
+                else:
+                    logging.critical("Invalid output format '%s' on row %d, "\
+                        "must be one  of '%s'. Exiting..." % (cell.value,
+                        idx_row+2, "', '".join(supported_output_formats)))
+                    sys.exit(15)
+            if idx_col == skip_field_col:
+                if cell.value in supported_skip_field:
+                    config[idx_row]["skip_field"] = ("True" == cell.value)
+                else:
+                    logging.critical("Invalid value '%s' for the 'Skip field' "\
+                        "column on row %d, must be one  of '%s'. Exiting..." %
+                        (cell.value, idx_row+2,
+                        "', '".join(supported_skip_field)))
+                    sys.exit(16)
+
+    logging.info("Config '%s' loaded successfully" % config_file)
+    logging.debug(config)
+    return config
+
 def parse_args(arguments):
     parser = argparse.ArgumentParser(description="Convert files from delimited "\
         "(e.g. CSV) to fixed width format")
@@ -57,6 +125,11 @@ def parse_args(arguments):
         help="Allow to overwrite the output file",
         action='store_true',
         required=False
+    )
+    parser.add_argument("-c", "--config",
+        help="Specify the configuration file",
+        action='store',
+        required=True
     )
 
     parser.add_argument(
@@ -86,6 +159,10 @@ def parse_args(arguments):
             "NOT overwrite. Add the `--overwrite-file` argument to allow "\
             "overwriting. Exiting...")
         sys.exit(11)
+    if not os.path.isfile(args.config):
+        logging.critical("The specified configuration file does not exist. "\
+            "Exiting...")
+        sys.exit(12)
 
     logging.debug("These are the parsed arguments:\n'%s'" % args)
     return args
@@ -94,6 +171,8 @@ def init():
     if __name__ == "__main__":
         # Parse the provided command-line arguments
         args = parse_args(sys.argv[1:])
+
+        config = load_config(args.config)
 
         #TODO: allow passing these as arguments to the script
         delimiter = '^'
