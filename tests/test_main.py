@@ -13,12 +13,16 @@ import sys
 import os
 import io
 import contextlib
+import logging
 
 sys.path.append('.')
 target = __import__("delimited2fixedwidth")
 
 
 class TestParseArgs(unittest.TestCase):
+    def setUp(self):
+        logging.basicConfig(level=logging.CRITICAL)
+
     def test_parse_args_no_arguments(self):
         """
         Test running the script without any of the required arguments
@@ -57,13 +61,13 @@ class TestParseArgs(unittest.TestCase):
         if os.path.isfile(output_file):
             os.remove(output_file)
             self.assertFalse(os.path.isfile(output_file))
-        f = io.StringIO()
-        with self.assertRaises(SystemExit) as cm, contextlib.redirect_stderr(f):
+        with self.assertRaises(SystemExit) as cm1, \
+            self.assertLogs(level='CRITICAL') as cm2:
             parser = target.parse_args(["-i", input_file, "-o", output_file,
                 "-c", config_file])
-        self.assertEqual(cm.exception.code, 10)
-        self.assertTrue("CRITICAL:root:The specified input file does not " \
-            "exist. Exiting..." in f.getvalue())
+        self.assertEqual(cm1.exception.code, 10)
+        self.assertEqual(cm2.output, ["CRITICAL:root:The specified input " \
+            "file does not exist. Exiting..."])
 
 
 class TestLicense(unittest.TestCase):
