@@ -33,8 +33,10 @@ def convert_content(input_content, config):
         for idx_col, cell in enumerate(row):
             output_format = config[idx_col]["output_format"]
             length = config[idx_col]["length"]
+
             if config[idx_col]["skip_field"]:
                 cell = ""
+
             if "Time" == output_format:
                 m = re.match(r"(\d{2})(:)?(\d{2})", cell)
                 if m:
@@ -44,6 +46,15 @@ def convert_content(input_content, config):
                         "row %d (ignoring the header). Exiting..." % (cell,
                         idx_col+1, idx_row+1))
                     sys.exit(17)
+
+            # Confirm that the length of the field (before padding) is less than
+            # the maximum allowed length
+            if len(cell) > config[idx_col]["length"]:
+                logging.critical("Field %d on row %d (ignoring the header) is "\
+                    "too long! Length: %d, max length %d. Exiting..." % (
+                    idx_col+1, idx_row+1, len(cell), config[idx_col]["length"]))
+                sys.exit(18)
+
             padded_output_value = pad_output_value(cell, output_format, length)
             converted_row_content.append(padded_output_value)
         output_content.append(''.join(converted_row_content))
