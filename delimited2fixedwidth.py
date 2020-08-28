@@ -53,6 +53,11 @@ def parse_args(arguments):
         action='store',
         required=True
     )
+    parser.add_argument("-x", "--overwrite-file",
+        help="Allow to overwrite the output file",
+        action='store_true',
+        required=False
+    )
 
     parser.add_argument(
         '-d', '--debug',
@@ -76,9 +81,10 @@ def parse_args(arguments):
     if not os.path.isfile(args.input):
         logging.critical("The specified input file does not exist. Exiting...")
         sys.exit(10)
-    if os.path.isfile(args.output):
+    if os.path.isfile(args.output) and not args.overwrite_file:
         logging.critical("The specified output file does already exist, will "\
-            "NOT overwrite. Exiting...")
+            "NOT overwrite. Add the `--overwrite-file` argument to allow "\
+            "overwriting. Exiting...")
         sys.exit(11)
 
     logging.debug("These are the parsed arguments:\n'%s'" % args)
