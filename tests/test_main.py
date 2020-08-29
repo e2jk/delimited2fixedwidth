@@ -126,6 +126,21 @@ class TestConvertCell(unittest.TestCase):
         self.assertEqual(cm2.output, ["CRITICAL:root:Invalid decimal format " \
             "'ab:cd' in field 4 on row 5 (ignoring the header). Exiting..."])
 
+    def test_convert_cell_text(self):
+        """
+        Test converting a valid text value, returns the same value
+        """
+        output_value = target.convert_cell("This is the value", "Text", 2, 3)
+        self.assertEqual(output_value, "This is the value")
+
+    def test_convert_cell_text_nonsense_output_format(self):
+        """
+        Test converting a valid text value, passing a nonsense output_format.
+        Returns the same value
+        """
+        output_value = target.convert_cell("This is the value", "blabla", 2, 3)
+        self.assertEqual(output_value, "This is the value")
+
 
 class TestPadOutputValue(unittest.TestCase):
     def test_pad_output_value_integer_int(self):
