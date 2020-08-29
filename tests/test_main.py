@@ -57,6 +57,40 @@ class TestConvertCell(unittest.TestCase):
         self.assertEqual(cm2.output, ["CRITICAL:root:Invalid time format " \
             "'ab:cd' in field 2 on row 3 (ignoring the header). Exiting..."])
 
+    def test_convert_cell_date_ddmmyyyy_slashes(self):
+        """
+        Test converting a valid date value with format DD/MM/YYYY
+        """
+        date = "03/11/1981"
+        output_value = target.convert_cell(date, "Date (DD/MM/YYYY)", 2, 3)
+        self.assertEqual(output_value, "19811103")
+
+    def test_convert_cell_date_ddmmyyyy_slashes_invalid_date(self):
+        """
+        Test converting an invalid date, nonexistent day
+        """
+        date = "30/02/1981"
+        with self.assertRaises(SystemExit) as cm1, \
+            self.assertLogs(level='CRITICAL') as cm2:
+            output_value = target.convert_cell(date, "Date (DD/MM/YYYY)", 43, 22)
+        self.assertEqual(cm1.exception.code, 18)
+        self.assertEqual(cm2.output, ["CRITICAL:root:Invalid date format " \
+            "'30/02/1981' in field 43 on row 22 (ignoring the header). " \
+            "Exiting..."])
+
+    def test_convert_cell_date_ddmmyyyy_slashes_invalid_format(self):
+        """
+        Test converting an invalid date, wrong format
+        """
+        date = "1981/11/03"
+        with self.assertRaises(SystemExit) as cm1, \
+            self.assertLogs(level='CRITICAL') as cm2:
+            output_value = target.convert_cell(date, "Date (DD/MM/YYYY)", 6, 77)
+        self.assertEqual(cm1.exception.code, 18)
+        self.assertEqual(cm2.output, ["CRITICAL:root:Invalid date format " \
+            "'1981/11/03' in field 6 on row 77 (ignoring the header). " \
+            "Exiting..."])
+
     def test_convert_cell_decimal(self):
         """
         Test converting a valid decimal value.
