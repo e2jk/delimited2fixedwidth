@@ -20,6 +20,23 @@ sys.path.append('.')
 target = __import__("delimited2fixedwidth")
 
 
+class TestWriteOutputFile(unittest.TestCase):
+    def test_write_output_file(self):
+        """
+        Test writing an output file
+        """
+        (temp_fd, temp_output_file) = tempfile.mkstemp()
+        self.assertTrue(os.path.isfile(temp_output_file))
+        target.write_output_file(["blablabla", "other line"], temp_output_file)
+        with open(temp_output_file) as f:
+            s = f.read()
+            self.assertTrue("blablabla" in s)
+            self.assertTrue("other line" in s)
+        # Delete the temporary file created by the test
+        os.close(temp_fd)
+        os.remove(temp_output_file)
+
+
 class TestConvertCell(unittest.TestCase):
     def test_convert_cell_time_colon(self):
         """
