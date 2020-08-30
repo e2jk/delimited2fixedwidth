@@ -37,6 +37,74 @@ class TestWriteOutputFile(unittest.TestCase):
         os.remove(temp_output_file)
 
 
+class TestConvertContent(unittest.TestCase):
+    def test_convert_content_empty(self):
+        """
+        Test converting empty full content
+        """
+        output_content  = target.convert_content([], None)
+        self.assertEqual(output_content, [])
+
+    def test_convert_content_valid(self):
+        """
+        Test converting valid full content
+        """
+        input_content = [
+            ["01:42", "This is just text", "blabla", "20/6/2020"],
+            ["2247", "Short text", "not important", "29/11/2020"]
+        ]
+        config = [
+            {"length": 4,
+            "output_format": "Time",
+            "skip_field": False},
+            {"length": 20,
+            "output_format": "Text",
+            "skip_field": False},
+            {"length": 0,
+            "output_format": "Text",
+            "skip_field": True},
+            {"length": 8,
+            "output_format": "Date (DD/MM/YYYY)",
+            "skip_field": False},
+        ]
+        output_content  = target.convert_content(input_content, config)
+        expected_output = [
+            "0142This is just text   20200620",
+            "2247Short text          20201129"
+        ]
+        self.assertEqual(output_content, expected_output)
+
+    def test_convert_content_too_long(self):
+        """
+        Test converting full content with one field that's too long
+        """
+        input_content = [
+            ["2247", "Short text", "not important", "29/11/2020"],
+            ["01:42", "This text is too long", "blabla", "20/6/2020"]
+        ]
+        config = [
+            {"length": 4,
+            "output_format": "Time",
+            "skip_field": False},
+            {"length": 20,
+            "output_format": "Text",
+            "skip_field": False},
+            {"length": 0,
+            "output_format": "Text",
+            "skip_field": True},
+            {"length": 8,
+            "output_format": "Date (DD/MM/YYYY)",
+            "skip_field": False},
+        ]
+        with self.assertRaises(SystemExit) as cm1, \
+            self.assertLogs(level='CRITICAL') as cm2:
+            output_content  = target.convert_content(input_content, config)
+        self.assertEqual(cm1.exception.code, 18)
+        self.assertEqual(cm2.output, ["CRITICAL:root:Field 2 on row 2 " \
+            "(ignoring the header) is too long! Length: 21, max length 20. " \
+            "Exiting..."])
+
+
 class TestConvertCell(unittest.TestCase):
     def test_convert_cell_time_colon(self):
         """
