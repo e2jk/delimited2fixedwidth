@@ -186,7 +186,7 @@ class TestConvertContent(unittest.TestCase):
         ]
         self.assertEqual(output_content, expected_output)
 
-    def test_convert_content_too_long(self):
+    def test_convert_content_field_too_long(self):
         """
         Test converting full content with one field that's too long
         """
@@ -215,6 +215,38 @@ class TestConvertContent(unittest.TestCase):
         self.assertEqual(cm2.output, ["CRITICAL:root:Field 2 on row 2 " \
             "(ignoring the header) is too long! Length: 21, max length 20. " \
             "Exiting..."])
+
+    def test_convert_content_too_many_input_fields(self):
+        """
+        Test converting full content where the input data has more fields than
+        are defined in the configuration
+        """
+        input_content = [
+            ["2247", "Short text", "not important", "29/11/2020"],
+            ["01:42", "Another text", "blabla", "20/6/2020", "Extra field"]
+        ]
+        config = [
+            {"length": 4,
+            "output_format": "Time",
+            "skip_field": False},
+            {"length": 20,
+            "output_format": "Text",
+            "skip_field": False},
+            {"length": 0,
+            "output_format": "Text",
+            "skip_field": True},
+            {"length": 8,
+            "output_format": "Date (DD/MM/YYYY)",
+            "skip_field": False},
+        ]
+        with self.assertRaises(SystemExit) as cm1, \
+            self.assertLogs(level='CRITICAL') as cm2:
+            output_content  = target.convert_content(input_content, config)
+        self.assertEqual(cm1.exception.code, 23)
+        self.assertEqual(cm2.output, ["CRITICAL:root:Row 2 (ignoring the " \
+            "header) has more fields than are defined in the configuration " \
+            "file! The row has 5 fields while the configuration defines only " \
+            "4 possible fields. Exiting..."])
 
 
 class TestConvertCell(unittest.TestCase):

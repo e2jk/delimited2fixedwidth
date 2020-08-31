@@ -77,6 +77,14 @@ def convert_content(input_content, config):
     output_content = []
     for idx_row, row in enumerate(input_content):
         converted_row_content = []
+        # Confirm that the input_content doesn't have more fields than are
+        # defined in the configuration file
+        if len(row) > len(config):
+            logging.critical("Row %d (ignoring the header) has more fields " \
+                "than are defined in the configuration file! The row has %d " \
+                "fields while the configuration defines only %d possible " \
+                "fields. Exiting..." % (idx_row+1, len(row), len(config)))
+            sys.exit(23)
         for idx_col, cell in enumerate(row):
             output_format = config[idx_col]["output_format"]
             length = config[idx_col]["length"]
