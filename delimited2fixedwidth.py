@@ -207,13 +207,13 @@ def parse_args(arguments):
         required=True
     )
     parser.add_argument("-sh", "--skip-header",
-        help="The number of header lines to skip",
+        help="The number of header lines to skip (default 0)",
         action='store',
         required=False,
         default=0
     )
     parser.add_argument("-sf", "--skip-footer",
-        help="The number of footer lines to skip",
+        help="The number of footer lines to skip (default 0)",
         action='store',
         required=False,
         default=0
