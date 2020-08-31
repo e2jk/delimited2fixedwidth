@@ -174,9 +174,8 @@ def load_config(config_file):
                     config[idx_row]["skip_field"] = ("True" == cell.value)
                 else:
                     logging.critical("Invalid value '%s' for the 'Skip field' "\
-                        "column on row %d, must be one  of '%s'. Exiting..." %
-                        (cell.value, idx_row+2,
-                        "', '".join(supported_skip_field)))
+                        "column on row %d, must be one  of 'True', 'False' or "\
+                        "empty. Exiting..." % (cell.value, idx_row+2))
                     sys.exit(16)
 
     logging.info("Config '%s' loaded successfully" % config_file)

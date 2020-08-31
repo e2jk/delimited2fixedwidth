@@ -37,6 +37,83 @@ class TestWriteOutputFile(unittest.TestCase):
         os.remove(temp_output_file)
 
 
+class TestLoadConfig(unittest.TestCase):
+    def test_load_config_valid(self):
+        """
+        Test loading a valid configuration file
+        """
+        config_file = "tests/sample_files/configuration1.xlsx"
+        config = target.load_config(config_file)
+        expected_output = [
+            {'length': 7, 'output_format': 'Integer', 'skip_field': False},
+            {'length': 7, 'output_format': 'Integer', 'skip_field': False},
+            {'length': 7, 'output_format': 'Integer', 'skip_field': False},
+            {'length': 7, 'output_format': 'Decimal', 'skip_field': False},
+            {'length': 8, 'output_format': 'Date (DD/MM/YYYY)',
+                'skip_field': False},
+            {'length': 4, 'output_format': 'Time', 'skip_field': False},
+            {'length': 40, 'output_format': 'Text', 'skip_field': True},
+            {'length': 40, 'output_format': 'Text', 'skip_field': False},
+            {'length': 0, 'output_format': 'Text', 'skip_field': True}
+        ]
+        self.assertEqual(config, expected_output)
+
+    def test_load_config_missing_mandatory_columns(self):
+        """
+        Test loading a configuration file missing one of the mandatory columns
+        """
+        config_file = "tests/sample_files/" \
+            "configuration1_missing_mandatory_columns.xlsx"
+        with self.assertRaises(SystemExit) as cm1, \
+            self.assertLogs(level='CRITICAL') as cm2:
+            config = target.load_config(config_file)
+        self.assertEqual(cm1.exception.code, 13)
+        self.assertEqual(cm2.output, ["CRITICAL:root:Invalid config file, " \
+            "missing one of the columns 'Length', 'Output format' or 'Skip " \
+            "field'. Exiting..."])
+
+    def test_load_config_invalid_length(self):
+        """
+        Test loading a configuration file with an invalid length value
+        """
+        config_file = "tests/sample_files/configuration1_invalid_length.xlsx"
+        with self.assertRaises(SystemExit) as cm1, \
+            self.assertLogs(level='CRITICAL') as cm2:
+            config = target.load_config(config_file)
+        self.assertEqual(cm1.exception.code, 14)
+        self.assertEqual(cm2.output, ["CRITICAL:root:Invalid value 'INVALID " \
+            "LENGTH' for the 'Length' column on row 3, must be a positive " \
+            "number. Exiting..."])
+
+    def test_load_config_invalid_output_format(self):
+        """
+        Test loading a configuration file with an invalid output format value
+        """
+        config_file = "tests/sample_files/" \
+            "configuration1_invalid_output_format.xlsx"
+        with self.assertRaises(SystemExit) as cm1, \
+            self.assertLogs(level='CRITICAL') as cm2:
+            config = target.load_config(config_file)
+        self.assertEqual(cm1.exception.code, 15)
+        self.assertEqual(cm2.output, ["CRITICAL:root:Invalid output format " \
+            "'INVALID OUTPUT FORMAT' on row 9, must be one  of 'Integer', " \
+            "'Decimal', 'Date (DD/MM/YYYY)', 'Time', 'Text'. Exiting..."])
+
+    def test_load_config_invalid_skip_field(self):
+        """
+        Test loading a configuration file with an invalid skip field value
+        """
+        config_file = "tests/sample_files/" \
+            "configuration1_invalid_skip_field.xlsx"
+        with self.assertRaises(SystemExit) as cm1, \
+            self.assertLogs(level='CRITICAL') as cm2:
+            config = target.load_config(config_file)
+        self.assertEqual(cm1.exception.code, 16)
+        self.assertEqual(cm2.output, ["CRITICAL:root:Invalid value 'INVALID " \
+            "SKIP FIELD' for the 'Skip field' column on row 5, must be one  " \
+            "of 'True', 'False' or empty. Exiting..."])
+
+
 class TestReadInputFile(unittest.TestCase):
     def test_read_input_file_valid(self):
         """
