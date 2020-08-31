@@ -448,7 +448,7 @@ class TestParseArgs(unittest.TestCase):
             ".xlsx', delimiter=',', input='tests/sample_files/input1.txt', " \
             "logging_level='DEBUG', loglevel=10, output='tests/sample_files/" \
             "nonexistent_test_output.txt', overwrite_file=False, " \
-            "skip_footer=0, skip_header=0)'"])
+            "quotechar='\"', skip_footer=0, skip_header=0)'"])
 
     def test_parse_args_invalid_input_file(self):
         """

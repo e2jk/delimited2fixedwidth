@@ -212,6 +212,12 @@ def parse_args(arguments):
         required=False,
         default=","
     )
+    parser.add_argument("-q", "--quotechar",
+        help='The character used to wrap textual fields in the input file (default ")',
+        action='store',
+        required=False,
+        default='"'
+    )
     parser.add_argument("-sh", "--skip-header",
         help="The number of header lines to skip (default 0)",
         action='store',
@@ -281,11 +287,8 @@ def init():
 
         config = load_config(args.config)
 
-        #TODO: allow passing these as arguments to the script
-        quotechar = '"'
-
-        input_content = read_input_file(args.input, args.delimiter, quotechar,
-            args.skip_header, args.skip_footer)
+        input_content = read_input_file(args.input, args.delimiter,
+            args.quotechar, args.skip_header, args.skip_footer)
 
         output_content = convert_content(input_content, config)
 
