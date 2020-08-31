@@ -514,6 +514,54 @@ class TestParseArgs(unittest.TestCase):
         os.remove(temp_output_file)
 
 
+class TestInit(unittest.TestCase):
+    def test_init_no_param(self):
+        """
+        Test the init code without any parameters
+        """
+        target.__name__ = "__main__"
+        target.sys.argv = ["scriptname.py"]
+        f = io.StringIO()
+        with self.assertRaises(SystemExit) as cm, contextlib.redirect_stderr(f):
+            target.init()
+        self.assertEqual(cm.exception.code, 2)
+        self.assertTrue("error: the following arguments are required: " \
+            "-i/--input, -o/--output, -c/--config" in f.getvalue())
+
+    def test_init_valid(self):
+        """
+        Test the init code with valid parameters
+        """
+        output_file = "tests/sample_files/nonexistent_test_output.txt"
+        # Confirm the output file doesn't exist
+        if os.path.isfile(output_file):
+            os.remove(output_file)
+            self.assertFalse(os.path.isfile(output_file))
+        target.__name__ = "__main__"
+        target.sys.argv = ["scriptname.py",
+            "--input", "tests/sample_files/input1.txt",
+            "--output", output_file,
+            "--config", "tests/sample_files/configuration1.xlsx"]
+        target.init()
+        # Confirm the output file has been written and its content
+        self.assertTrue(os.path.isfile(output_file))
+        with open(output_file) as f:
+            s = f.read()
+            expected_output = "0004000133034205413540000100202007312006" \
+                    "                                        " \
+                    "Leendert MOLENDIJK [90038979]           \n" \
+                "0004000133034005407940000157202003051022" \
+                    "                                        " \
+                    "Leendert MOLENDIJK [90038979]           \n" \
+                "0004000133034105409340022139202012252006" \
+                    "                                        " \
+                    "Leendert MOLENDIJK [90038979]           "
+            self.assertEqual(expected_output, s)
+        # Remove the output file
+        os.remove(output_file)
+        self.assertFalse(os.path.isfile(output_file))
+
+
 class TestLicense(unittest.TestCase):
     def test_license_file(self):
         """
