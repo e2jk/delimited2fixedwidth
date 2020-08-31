@@ -211,7 +211,7 @@ class TestConvertContent(unittest.TestCase):
         with self.assertRaises(SystemExit) as cm1, \
             self.assertLogs(level='CRITICAL') as cm2:
             output_content  = target.convert_content(input_content, config)
-        self.assertEqual(cm1.exception.code, 18)
+        self.assertEqual(cm1.exception.code, 20)
         self.assertEqual(cm2.output, ["CRITICAL:root:Field 2 on row 2 " \
             "(ignoring the header) is too long! Length: 21, max length 20. " \
             "Exiting..."])

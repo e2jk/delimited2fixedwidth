@@ -92,7 +92,7 @@ def convert_content(input_content, config):
                 logging.critical("Field %d on row %d (ignoring the header) is "\
                     "too long! Length: %d, max length %d. Exiting..." % (
                     idx_col+1, idx_row+1, len(cell), config[idx_col]["length"]))
-                sys.exit(18)
+                sys.exit(20)
 
             padded_output_value = pad_output_value(cell, output_format, length)
             converted_row_content.append(padded_output_value)
