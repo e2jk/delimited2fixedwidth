@@ -99,3 +99,10 @@ How to install from source
 --------------------------
 
 Setting up a Virtual Python environment and installing the dependencies is covered on the [`README_VIRTUAL_ENVIRONMENT`](../../tree/master/README_VIRTUAL_ENVIRONMENT.md) page.
+
+Building the executable
+-----------------------
+
+Run the following command in your virtual environment:
+
+  `$ pyinstaller --onefile delimited2fixedwidth.py`
