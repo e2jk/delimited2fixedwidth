@@ -37,6 +37,41 @@ class TestWriteOutputFile(unittest.TestCase):
         os.remove(temp_output_file)
 
 
+class TestReadInputFile(unittest.TestCase):
+    def test_read_input_file_valid(self):
+        """
+        Test reading a valid input file
+        """
+        input_file = "tests/sample_files/input1.txt"
+        delimiter = '^'
+        quotechar = '"'
+        skip_header = 1
+        skip_footer = 1
+        input_content = target.read_input_file(input_file, delimiter, quotechar,
+            skip_header, skip_footer)
+        expected_output = [
+            ['04000', '1330342', '541354', '1', '31/7/2020', '20:06',
+                'MOLENDIJK, LEENDERT', 'Leendert MOLENDIJK [90038979]'],
+            ['04000', '1330340', '540794', '1.567', '5/3/2020', '10:22',
+                'MOLENDIJK, LEENDERT', 'Leendert MOLENDIJK [90038979]'],
+            ['04000', '1330341', '540934', '221.392', '25/12/2020', '2006',
+                'MOLENDIJK, LEENDERT', 'Leendert MOLENDIJK [90038979]']]
+        self.assertEqual(input_content, expected_output)
+
+    def test_read_input_file_nonexistent(self):
+        """
+        Test reading a nonexistent input file
+        """
+        input_file = "tests/sample_files/nonexistent_input.txt"
+        delimiter = '^'
+        quotechar = '"'
+        skip_header = 1
+        skip_footer = 1
+        with self.assertRaises(FileNotFoundError) as cm:
+            input_content = target.read_input_file(input_file, delimiter,
+                quotechar, skip_header, skip_footer)
+
+
 class TestConvertContent(unittest.TestCase):
     def test_convert_content_empty(self):
         """
