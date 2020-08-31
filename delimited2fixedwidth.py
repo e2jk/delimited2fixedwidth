@@ -104,6 +104,13 @@ def convert_content(input_content, config):
 
             padded_output_value = pad_output_value(cell, output_format, length)
             converted_row_content.append(padded_output_value)
+        # Process fields not in the input content but defined in the
+        # configuration file: empty padding, based on the defined output format
+        for idx_col in range(len(row), len(config)):
+            output_format = config[idx_col]["output_format"]
+            length = config[idx_col]["length"]
+            padded_output_value = pad_output_value("", output_format, length)
+            converted_row_content.append(padded_output_value)
         output_content.append(''.join(converted_row_content))
 
     logging.debug("The output content:\n%s" % '\n'.join(output_content))

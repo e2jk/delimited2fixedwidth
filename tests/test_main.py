@@ -248,6 +248,39 @@ class TestConvertContent(unittest.TestCase):
             "file! The row has 5 fields while the configuration defines only " \
             "4 possible fields. Exiting..."])
 
+    def test_convert_content_less_input_fields(self):
+        """
+        Test converting full content where the input data has less fields than
+        are defined in the configuration
+        """
+        input_content = [
+            ["01:42", "This is just text", "blabla", "20/6/2020"],
+            ["2247", "Short text", "not important"]
+        ]
+        config = [
+            {"length": 4,
+            "output_format": "Time",
+            "skip_field": False},
+            {"length": 20,
+            "output_format": "Text",
+            "skip_field": False},
+            {"length": 0,
+            "output_format": "Text",
+            "skip_field": True},
+            {"length": 8,
+            "output_format": "Date (DD/MM/YYYY)",
+            "skip_field": False},
+            {"length": 10,
+            "output_format": "Integer",
+            "skip_field": False},
+        ]
+        output_content  = target.convert_content(input_content, config)
+        expected_output = [
+            "0142This is just text   202006200000000000",
+            "2247Short text                  0000000000"
+        ]
+        self.assertEqual(output_content, expected_output)
+
 
 class TestConvertCell(unittest.TestCase):
     def test_convert_cell_time_colon(self):
