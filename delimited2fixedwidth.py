@@ -206,6 +206,12 @@ def parse_args(arguments):
         action='store',
         required=True
     )
+    parser.add_argument("-dl", "--delimiter",
+        help="The field delimiter used in the input file (default ,)",
+        action='store',
+        required=False,
+        default=","
+    )
     parser.add_argument("-sh", "--skip-header",
         help="The number of header lines to skip (default 0)",
         action='store',
@@ -276,10 +282,9 @@ def init():
         config = load_config(args.config)
 
         #TODO: allow passing these as arguments to the script
-        delimiter = '^'
         quotechar = '"'
 
-        input_content = read_input_file(args.input, delimiter, quotechar,
+        input_content = read_input_file(args.input, args.delimiter, quotechar,
             args.skip_header, args.skip_footer)
 
         output_content = convert_content(input_content, config)

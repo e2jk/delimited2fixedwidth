@@ -445,10 +445,10 @@ class TestParseArgs(unittest.TestCase):
         self.assertEqual(parser.logging_level, "DEBUG")
         self.assertEqual(cm.output, ["DEBUG:root:These are the parsed " \
             "arguments:\n'Namespace(config='tests/sample_files/configuration1" \
-            ".xlsx', input='tests/sample_files/input1.txt', logging_level=" \
-            "'DEBUG', loglevel=10, output='tests/sample_files/nonexistent_" \
-            "test_output.txt', overwrite_file=False, skip_footer=0, " \
-            "skip_header=0)'"])
+            ".xlsx', delimiter=',', input='tests/sample_files/input1.txt', " \
+            "logging_level='DEBUG', loglevel=10, output='tests/sample_files/" \
+            "nonexistent_test_output.txt', overwrite_file=False, " \
+            "skip_footer=0, skip_header=0)'"])
 
     def test_parse_args_invalid_input_file(self):
         """
@@ -573,6 +573,7 @@ class TestInit(unittest.TestCase):
             "--input", "tests/sample_files/input1.txt",
             "--output", output_file,
             "--config", "tests/sample_files/configuration1.xlsx",
+            "--delimiter", "^",
             "--skip-header", "1",
             "--skip-footer", "1"]
         target.init()
