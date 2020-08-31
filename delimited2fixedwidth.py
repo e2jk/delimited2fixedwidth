@@ -206,6 +206,12 @@ def parse_args(arguments):
         action='store',
         required=True
     )
+    parser.add_argument("-sh", "--skip-header",
+        help="The number of header lines to skip",
+        action='store',
+        required=False,
+        default=0
+    )
 
     parser.add_argument(
         '-d', '--debug',
@@ -238,6 +244,13 @@ def parse_args(arguments):
         logging.critical("The specified configuration file does not exist. "\
             "Exiting...")
         sys.exit(12)
+    if args.skip_header != 0:
+        try:
+            args.skip_header = int(args.skip_header)
+        except ValueError:
+            logging.critical("The `--skip-header` argument must be numeric. "\
+                "Exiting...")
+            sys.exit(21)
 
     logging.debug("These are the parsed arguments:\n'%s'" % args)
     return args
@@ -252,11 +265,10 @@ def init():
         #TODO: allow passing these as arguments to the script
         delimiter = '^'
         quotechar = '"'
-        skip_header = 1
         skip_footer = 1
 
         input_content = read_input_file(args.input, delimiter, quotechar,
-            skip_header, skip_footer)
+            args.skip_header, skip_footer)
 
         output_content = convert_content(input_content, config)
 

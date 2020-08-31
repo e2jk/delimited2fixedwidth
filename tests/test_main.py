@@ -447,7 +447,7 @@ class TestParseArgs(unittest.TestCase):
             "arguments:\n'Namespace(config='tests/sample_files/configuration1" \
             ".xlsx', input='tests/sample_files/input1.txt', logging_level=" \
             "'DEBUG', loglevel=10, output='tests/sample_files/nonexistent_" \
-            "test_output.txt', overwrite_file=False)'"])
+            "test_output.txt', overwrite_file=False, skip_header=0)'"])
 
     def test_parse_args_invalid_input_file(self):
         """
@@ -513,6 +513,21 @@ class TestParseArgs(unittest.TestCase):
         os.close(temp_fd)
         os.remove(temp_output_file)
 
+    def test_parse_args_skip_header_str(self):
+        """
+        Test running the script with an invalid --skip-header parameter
+        """
+        input_file = "tests/sample_files/input1.txt"
+        output_file = "tests/sample_files/nonexistent_test_output.txt"
+        config_file = "tests/sample_files/configuration1.xlsx"
+        with self.assertRaises(SystemExit) as cm1, \
+            self.assertLogs(level='CRITICAL') as cm2:
+            parser = target.parse_args(["-i", input_file,
+                "-o", output_file, "-c", config_file, "-sh", "INVALID"])
+        self.assertEqual(cm1.exception.code, 21)
+        self.assertEqual(cm2.output, ['CRITICAL:root:The `--skip-header` ' \
+            'argument must be numeric. Exiting...'])
+
 
 class TestInit(unittest.TestCase):
     def test_init_no_param(self):
@@ -541,7 +556,8 @@ class TestInit(unittest.TestCase):
         target.sys.argv = ["scriptname.py",
             "--input", "tests/sample_files/input1.txt",
             "--output", output_file,
-            "--config", "tests/sample_files/configuration1.xlsx"]
+            "--config", "tests/sample_files/configuration1.xlsx",
+            "--skip-header", "1"]
         target.init()
         # Confirm the output file has been written and its content
         self.assertTrue(os.path.isfile(output_file))
