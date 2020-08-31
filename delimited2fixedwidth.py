@@ -154,8 +154,6 @@ def load_config(config_file):
                 config[idx_row]["length"] = -1
                 if isinstance(cell.value, int):
                     config[idx_row]["length"] = cell.value
-                elif isinstance(cell.value, float) and cell.value.is_integer():
-                    config[idx_row]["length"] = int(cell.value)
                 if isinstance(cell.value, str) and cell.value.isnumeric():
                     config[idx_row]["length"] = int(cell.value)
                 if config[idx_row]["length"] < 0:
