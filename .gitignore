@@ -1,6 +1,7 @@
 .venv-delimited2fixedwidth
 data/sample*
 html_dev/coverage/
+vendor_docs
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
