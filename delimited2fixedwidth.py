@@ -212,6 +212,12 @@ def parse_args(arguments):
         required=False,
         default=0
     )
+    parser.add_argument("-sf", "--skip-footer",
+        help="The number of footer lines to skip",
+        action='store',
+        required=False,
+        default=0
+    )
 
     parser.add_argument(
         '-d', '--debug',
@@ -251,6 +257,13 @@ def parse_args(arguments):
             logging.critical("The `--skip-header` argument must be numeric. "\
                 "Exiting...")
             sys.exit(21)
+    if args.skip_footer != 0:
+        try:
+            args.skip_footer = int(args.skip_footer)
+        except ValueError:
+            logging.critical("The `--skip-footer` argument must be numeric. "\
+                "Exiting...")
+            sys.exit(22)
 
     logging.debug("These are the parsed arguments:\n'%s'" % args)
     return args
@@ -265,10 +278,9 @@ def init():
         #TODO: allow passing these as arguments to the script
         delimiter = '^'
         quotechar = '"'
-        skip_footer = 1
 
         input_content = read_input_file(args.input, delimiter, quotechar,
-            args.skip_header, skip_footer)
+            args.skip_header, args.skip_footer)
 
         output_content = convert_content(input_content, config)
 
