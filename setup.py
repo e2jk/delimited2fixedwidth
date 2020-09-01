@@ -12,7 +12,7 @@ setuptools.setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/e2jk/delimited2fixedwidth",
-    packages=setuptools.find_packages(),
+    py_modules=["delimited2fixedwidth"],
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",
