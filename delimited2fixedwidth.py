@@ -200,6 +200,10 @@ def load_config(config_file):
 def parse_args(arguments):
     parser = argparse.ArgumentParser(description="Convert files from "\
         "delimited (e.g. CSV) to fixed width format")
+    parser.add_argument('--version',
+        action='version',
+        version='%(prog)s 0.0.2-dev'
+    )
 
     parser.add_argument("-i", "--input",
         help="Specify the input file",

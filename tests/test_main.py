@@ -609,6 +609,16 @@ class TestParseArgs(unittest.TestCase):
         self.assertEqual(cm2.output, ['CRITICAL:root:The `--skip-footer` ' \
             'argument must be numeric. Exiting...'])
 
+    def test_parse_args_version(self):
+        """
+        Test the --version argument
+        """
+        f = io.StringIO()
+        with self.assertRaises(SystemExit) as cm, contextlib.redirect_stdout(f):
+            parser = target.parse_args(["--version"])
+        self.assertEqual(cm.exception.code, 0)
+        self.assertTrue("scriptname.py 0.0.2-dev" in f.getvalue())
+
 
 class TestInit(unittest.TestCase):
     def test_init_no_param(self):
