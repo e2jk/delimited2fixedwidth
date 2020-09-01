@@ -109,3 +109,15 @@ Building the executable
 Run the following command in your virtual environment:
 
   `$ pyinstaller --onefile delimited2fixedwidth.py`
+
+The executable that gets created in the `dist` folder can then be uploaded to Github as a new release.
+
+Packaging the source and publishing to the Python Package Index
+---------------------------------------------------------------
+
+Follow the instructions mentioned [here](https://packaging.python.org/tutorials/packaging-projects/#generating-distribution-archives), namely:
+
+```
+python3 setup.py sdist bdist_wheel
+python3 -m twine upload dist/*
+```
