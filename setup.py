@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="delimited2fixedwidth",
-    version="0.0.2-dev",
+    version="0.0.2-alpha",
     author="Emilien Klein",
     author_email="emilien@klein.st",
     description="Convert files from delimited (e.g. CSV) to fixed width format",

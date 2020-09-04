@@ -678,7 +678,7 @@ class TestParseArgs(unittest.TestCase):
         with self.assertRaises(SystemExit) as cm, contextlib.redirect_stdout(f):
             parser = target.parse_args(["--version"])
         self.assertEqual(cm.exception.code, 0)
-        self.assertTrue("scriptname.py 0.0.2-dev" in f.getvalue())
+        self.assertTrue("scriptname.py 0.0.2-alpha" in f.getvalue())
 
 
 class TestInit(unittest.TestCase):
