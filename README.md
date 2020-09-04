@@ -16,6 +16,12 @@ How to install the program
 
 For Linux and Windows, just download the latest version [here](https://github.com/e2jk/delimited2fixedwidth/releases/latest) and run it on your system, no need to install anything.
 
+The program can also be installed from the Python Package Index:
+
+```
+pip install delimited2fixedwidth
+```
+
 For other platforms, see the information outlined in the "How to install from source" section below.
 
 Configuration file
