@@ -14,11 +14,9 @@ How to run the program
 How to install the program
 --------------------------
 
-For Windows, just download the latest version [here](https://github.com/e2jk/delimited2fixedwidth/releases/latest) and run it on your system, no need to install anything.
+For Linux and Windows, just download the latest version [here](https://github.com/e2jk/delimited2fixedwidth/releases/latest) and run it on your system, no need to install anything.
 
 For other platforms, see the information outlined in the "How to install from source" section below.
-
-(Compiled versions are only produced for Windows, as this project was originally developed to run in that environment, but the software is known to run on other platforms -- for example, the Continuous Integration runs on Ubuntu 20.04, and the developer actually devs on an Ubuntu machine)
 
 Configuration file
 ------------------
