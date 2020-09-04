@@ -338,6 +338,26 @@ class TestConvertCell(unittest.TestCase):
             "Date (MM/DD/YYYY to YYYYMMDD)", 2, 3)
         self.assertEqual(output_value, "19811103")
 
+    def test_convert_cell_date_ddmmyyyy_slashes_short(self):
+        """
+        Test converting a valid date value with format DD/MM/YYYY, with
+        single-digit day and month
+        """
+        date = "3/1/1981"
+        output_value = target.convert_cell(date,
+            "Date (DD/MM/YYYY to YYYYMMDD)", 2, 3)
+        self.assertEqual(output_value, "19810103")
+
+    def test_convert_cell_date_mmddyyyy_slashes_short(self):
+        """
+        Test converting a valid date value with format MM/DD/YYYY, with
+        single-digit day and month
+        """
+        date = "1/3/1981"
+        output_value = target.convert_cell(date,
+            "Date (MM/DD/YYYY to YYYYMMDD)", 2, 3)
+        self.assertEqual(output_value, "19810103")
+
     def test_convert_cell_date_ddmmyyyy_slashes_invalid_date(self):
         """
         Test converting an invalid date, nonexistent day
