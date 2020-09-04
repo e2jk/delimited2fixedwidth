@@ -1,7 +1,11 @@
 import setuptools
 
 with open("README.md", "r") as fh:
-    long_description = fh.read()
+    readme = fh.read()
+with open("CHANGES.md", "r") as fh:
+    changes = fh.read().replace("# Changelog", "Changelog\n=========\n")
+
+long_description = "%s\n\n%s" % (readme, changes)
 
 setuptools.setup(
     name="delimited2fixedwidth",
