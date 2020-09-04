@@ -43,7 +43,7 @@ The **Output format** defines how the input value must be treated and transforme
 * Decimal
   * Decimal numbers get sent as "cents" instead of "dollars", rounded to the nearest cent. (yeah, weird explanation -- better have a look at the example...). Also padded with `0`s added to the left.
   * Example: "`123.458`" becomes "`00012346`" if a length of 8 is defined
-* Date (DD/MM/YYYY)
+* Date (DD/MM/YYYY to YYYYMMDD)
   * A date sent as input format "day/month/year" becomes (without spaces ) "year month day"
   * Example: "`21/06/2020`" becomes "`20200621`" if a length of 8 is defined
 * Time

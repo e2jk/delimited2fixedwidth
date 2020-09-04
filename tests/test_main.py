@@ -49,7 +49,7 @@ class TestLoadConfig(unittest.TestCase):
             {'length': 7, 'output_format': 'Integer', 'skip_field': False},
             {'length': 7, 'output_format': 'Integer', 'skip_field': False},
             {'length': 7, 'output_format': 'Decimal', 'skip_field': False},
-            {'length': 8, 'output_format': 'Date (DD/MM/YYYY)',
+            {'length': 8, 'output_format': 'Date (DD/MM/YYYY to YYYYMMDD)',
                 'skip_field': False},
             {'length': 4, 'output_format': 'Time', 'skip_field': False},
             {'length': 40, 'output_format': 'Text', 'skip_field': True},
@@ -97,7 +97,8 @@ class TestLoadConfig(unittest.TestCase):
         self.assertEqual(cm1.exception.code, 15)
         self.assertEqual(cm2.output, ["CRITICAL:root:Invalid output format " \
             "'INVALID OUTPUT FORMAT' on row 9, must be one  of 'Integer', " \
-            "'Decimal', 'Date (DD/MM/YYYY)', 'Time', 'Text'. Exiting..."])
+            "'Decimal', 'Time', 'Text', 'Date (DD/MM/YYYY to YYYYMMDD)'. " \
+            "Exiting..."])
 
     def test_load_config_invalid_skip_field(self):
         """
@@ -176,7 +177,7 @@ class TestConvertContent(unittest.TestCase):
             "output_format": "Text",
             "skip_field": True},
             {"length": 8,
-            "output_format": "Date (DD/MM/YYYY)",
+            "output_format": "Date (DD/MM/YYYY to YYYYMMDD)",
             "skip_field": False},
         ]
         output_content  = target.convert_content(input_content, config)
@@ -205,7 +206,7 @@ class TestConvertContent(unittest.TestCase):
             "output_format": "Text",
             "skip_field": True},
             {"length": 8,
-            "output_format": "Date (DD/MM/YYYY)",
+            "output_format": "Date (DD/MM/YYYY to YYYYMMDD)",
             "skip_field": False},
         ]
         with self.assertRaises(SystemExit) as cm1, \
@@ -236,7 +237,7 @@ class TestConvertContent(unittest.TestCase):
             "output_format": "Text",
             "skip_field": True},
             {"length": 8,
-            "output_format": "Date (DD/MM/YYYY)",
+            "output_format": "Date (DD/MM/YYYY to YYYYMMDD)",
             "skip_field": False},
         ]
         with self.assertRaises(SystemExit) as cm1, \
@@ -268,7 +269,7 @@ class TestConvertContent(unittest.TestCase):
             "output_format": "Text",
             "skip_field": True},
             {"length": 8,
-            "output_format": "Date (DD/MM/YYYY)",
+            "output_format": "Date (DD/MM/YYYY to YYYYMMDD)",
             "skip_field": False},
             {"length": 10,
             "output_format": "Integer",
@@ -324,7 +325,8 @@ class TestConvertCell(unittest.TestCase):
         Test converting a valid date value with format DD/MM/YYYY
         """
         date = "03/11/1981"
-        output_value = target.convert_cell(date, "Date (DD/MM/YYYY)", 2, 3)
+        output_value = target.convert_cell(date,
+            "Date (DD/MM/YYYY to YYYYMMDD)", 2, 3)
         self.assertEqual(output_value, "19811103")
 
     def test_convert_cell_date_ddmmyyyy_slashes_invalid_date(self):
@@ -334,7 +336,8 @@ class TestConvertCell(unittest.TestCase):
         date = "30/02/1981"
         with self.assertRaises(SystemExit) as cm1, \
             self.assertLogs(level='CRITICAL') as cm2:
-            output_value = target.convert_cell(date, "Date (DD/MM/YYYY)", 43, 22)
+            output_value = target.convert_cell(date,
+                "Date (DD/MM/YYYY to YYYYMMDD)", 43, 22)
         self.assertEqual(cm1.exception.code, 18)
         self.assertEqual(cm2.output, ["CRITICAL:root:Invalid date format " \
             "'30/02/1981' in field 43 on row 22 (ignoring the header). " \
@@ -347,7 +350,8 @@ class TestConvertCell(unittest.TestCase):
         date = "1981/11/03"
         with self.assertRaises(SystemExit) as cm1, \
             self.assertLogs(level='CRITICAL') as cm2:
-            output_value = target.convert_cell(date, "Date (DD/MM/YYYY)", 6, 77)
+            output_value = target.convert_cell(date,
+                "Date (DD/MM/YYYY to YYYYMMDD)", 6, 77)
         self.assertEqual(cm1.exception.code, 18)
         self.assertEqual(cm2.output, ["CRITICAL:root:Invalid date format " \
             "'1981/11/03' in field 6 on row 77 (ignoring the header). " \

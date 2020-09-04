@@ -37,7 +37,7 @@ def convert_cell(value, output_format, idx_col, idx_row):
             logging.critical("Invalid time format '%s' in field %d on row %d "\
                 "(ignoring the header). Exiting..." % (value, idx_col, idx_row))
             sys.exit(17)
-    elif "Date (DD/MM/YYYY)" == output_format:
+    elif "Date (DD/MM/YYYY to YYYYMMDD)" == output_format:
         m = re.match(r"([0123]?\d)/([01]?\d)/(\d{4})", value)
         if m:
             year = m.group(3)
@@ -135,7 +135,8 @@ def read_input_file(input_file, delimiter, quotechar, skip_header, skip_footer):
 
 def load_config(config_file):
     config = []
-    supported_output_formats = ("Integer", "Decimal", "Date (DD/MM/YYYY)", "Time", "Text")
+    supported_output_formats = ("Integer", "Decimal", "Time", "Text",
+        "Date (DD/MM/YYYY to YYYYMMDD)")
     supported_skip_field = ("True", "False", "", None)
     logging.debug("Loading configuration %s" % config_file)
 
