@@ -4,8 +4,10 @@ with open("README.md", "r") as fh:
     readme = fh.read()
 with open("CHANGES.md", "r") as fh:
     changes = fh.read().replace("# Changelog", "Changelog\n=========\n")
-
 long_description = "%s\n\n%s" % (readme, changes)
+
+with open("requirements.txt", "r") as fh:
+   requirements = fh.readlines()
 
 setuptools.setup(
     name="delimited2fixedwidth",
@@ -17,6 +19,7 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     url="https://github.com/e2jk/delimited2fixedwidth",
     py_modules=["delimited2fixedwidth"],
+    install_requires=[req for req in requirements if req[:2] != "# "],
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",
