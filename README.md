@@ -46,6 +46,9 @@ The **Output format** defines how the input value must be treated and transforme
 * Date (DD/MM/YYYY to YYYYMMDD)
   * A date sent as input format "day/month/year" becomes (without spaces ) "year month day"
   * Example: "`21/06/2020`" becomes "`20200621`" if a length of 8 is defined
+* Date (MM/DD/YYYY to YYYYMMDD)
+  * A date sent as input format "month/day/year" becomes (without spaces ) "year month day"
+  * Example: "`06/21/2020`" becomes "`20200621`" if a length of 8 is defined
 * Time
   A time sent as hour:minutes (with or without colon in the input data) will be sent out without the colon
   * Example: "`20:06`" becomes "`2006`" if a length of 4 is defined

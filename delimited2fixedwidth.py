@@ -37,12 +37,21 @@ def convert_cell(value, output_format, idx_col, idx_row):
             logging.critical("Invalid time format '%s' in field %d on row %d "\
                 "(ignoring the header). Exiting..." % (value, idx_col, idx_row))
             sys.exit(17)
-    elif "Date (DD/MM/YYYY to YYYYMMDD)" == output_format:
-        m = re.match(r"([0123]?\d)/([01]?\d)/(\d{4})", value)
+    elif output_format in ("Date (DD/MM/YYYY to YYYYMMDD)",
+        "Date (MM/DD/YYYY to YYYYMMDD)"):
+        if "Date (DD/MM/YYYY to YYYYMMDD)" == output_format:
+            m = re.match(r"([0123]?\d)/([01]?\d)/(\d{4})", value)
+            if m:
+                year = m.group(3)
+                month = m.group(2).zfill(2)
+                day = m.group(1).zfill(2)
+        elif "Date (MM/DD/YYYY to YYYYMMDD)" == output_format:
+            m = re.match(r"([01]?\d)/([0123]?\d)/(\d{4})", value)
+            if m:
+                year = m.group(3)
+                month = m.group(1).zfill(2)
+                day = m.group(2).zfill(2)
         if m:
-            year = m.group(3)
-            month = m.group(2).zfill(2)
-            day = m.group(1).zfill(2)
             converted_value = "%s%s%s" % (year, month, day)
             # Is it a valid date?
             try:
@@ -50,8 +59,9 @@ def convert_cell(value, output_format, idx_col, idx_row):
             except ValueError:
                 converted_value = ""
         if not converted_value:
-            logging.critical("Invalid date format '%s' in field %d on row %d "\
-                "(ignoring the header). Exiting..." % (value, idx_col, idx_row))
+            logging.critical("Invalid date value '%s' for format '%s' in "\
+                "field %d on row %d (ignoring the header). Exiting..." % (value,
+                output_format, idx_col, idx_row))
             sys.exit(18)
     elif "Decimal" == output_format:
         # Decimal numbers must be sent with 2 decimal places and
