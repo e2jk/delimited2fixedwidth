@@ -213,7 +213,7 @@ def parse_args(arguments):
         "delimited (e.g. CSV) to fixed width format")
     parser.add_argument('--version',
         action='version',
-        version='%(prog)s 0.0.2-alpha'
+        version='%(prog)s 0.0.3-dev'
     )
 
     parser.add_argument("-i", "--input",
