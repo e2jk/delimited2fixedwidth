@@ -310,18 +310,23 @@ def parse_args(arguments):
     logging.debug("These are the parsed arguments:\n'%s'" % args)
     return args
 
+def process(input, output, config, delimiter, quotechar, skip_header,
+    skip_footer):
+    config = load_config(config)
+
+    input_content = read_input_file(input, delimiter, quotechar, skip_header,
+        skip_footer)
+
+    output_content = convert_content(input_content, config)
+
+    write_output_file(output_content, output)
+
 def init():
     if __name__ == "__main__":
         # Parse the provided command-line arguments
         args = parse_args(sys.argv[1:])
 
-        config = load_config(args.config)
-
-        input_content = read_input_file(args.input, args.delimiter,
+        process(args.input, args.output, args.config, args.delimiter,
             args.quotechar, args.skip_header, args.skip_footer)
-
-        output_content = convert_content(input_content, config)
-
-        write_output_file(output_content, args.output)
 
 init()
