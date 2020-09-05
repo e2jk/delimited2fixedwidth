@@ -155,8 +155,8 @@ class TestConvertContent(unittest.TestCase):
         """
         Test converting empty full content
         """
-        output_content  = target.convert_content([], None)
-        self.assertEqual(output_content, [])
+        output_content = target.convert_content([], None)
+        self.assertEqual(output_content, ([], '99999999', '00000000'))
 
     def test_convert_content_valid(self):
         """
@@ -180,7 +180,8 @@ class TestConvertContent(unittest.TestCase):
             "output_format": "Date (DD/MM/YYYY to YYYYMMDD)",
             "skip_field": False},
         ]
-        output_content  = target.convert_content(input_content, config)
+        (output_content, ignore1, ignore2) = target.convert_content(
+            input_content, config)
         expected_output = [
             "0142This is just text   20200620",
             "2247Short text          20201129"
@@ -211,7 +212,7 @@ class TestConvertContent(unittest.TestCase):
         ]
         with self.assertRaises(SystemExit) as cm1, \
             self.assertLogs(level='CRITICAL') as cm2:
-            output_content  = target.convert_content(input_content, config)
+            output_content = target.convert_content(input_content, config)
         self.assertEqual(cm1.exception.code, 20)
         self.assertEqual(cm2.output, ["CRITICAL:root:Field 2 on row 2 " \
             "(ignoring the header) is too long! Length: 21, max length 20. " \
@@ -242,7 +243,7 @@ class TestConvertContent(unittest.TestCase):
         ]
         with self.assertRaises(SystemExit) as cm1, \
             self.assertLogs(level='CRITICAL') as cm2:
-            output_content  = target.convert_content(input_content, config)
+            output_content = target.convert_content(input_content, config)
         self.assertEqual(cm1.exception.code, 23)
         self.assertEqual(cm2.output, ["CRITICAL:root:Row 2 (ignoring the " \
             "header) has more fields than are defined in the configuration " \
@@ -275,12 +276,53 @@ class TestConvertContent(unittest.TestCase):
             "output_format": "Integer",
             "skip_field": False},
         ]
-        output_content  = target.convert_content(input_content, config)
+        (output_content, ignore1, ignore2) = target.convert_content(
+            input_content, config)
         expected_output = [
             "0142This is just text   202006200000000000",
             "2247Short text                  0000000000"
         ]
         self.assertEqual(output_content, expected_output)
+
+    def test_convert_content_valid_date_field_to_report_on(self):
+        """
+        Test converting valid full content, including a date field to report on
+        """
+        input_content = [
+            ["01:42", "This is just text", "blabla", "20/6/2020"],
+            ["2247", "Short text", "not important", "17/09/2020"],
+            ["2247", "Short text", "not important", "29/11/2020"],
+            ["2247", "Short text", "not important", "6/8/2020"],
+            ["2247", "Short text", "not important", "10/10/2020"]
+        ]
+        config = [
+            {"length": 4,
+            "output_format": "Time",
+            "skip_field": False},
+            {"length": 20,
+            "output_format": "Text",
+            "skip_field": False},
+            {"length": 0,
+            "output_format": "Text",
+            "skip_field": True},
+            {"length": 8,
+            "output_format": "Date (DD/MM/YYYY to YYYYMMDD)",
+            "skip_field": False},
+        ]
+        date_field_to_report_on = 4
+        (output_content, oldest_date, most_recent_date) = \
+            target.convert_content(input_content, config,
+                date_field_to_report_on)
+        expected_output = [
+            "0142This is just text   20200620",
+            "2247Short text          20200917",
+            "2247Short text          20201129",
+            "2247Short text          20200806",
+            "2247Short text          20201010"
+        ]
+        self.assertEqual(output_content, expected_output)
+        self.assertEqual(oldest_date, "20200620")
+        self.assertEqual(most_recent_date, "20201129")
 
 
 class TestConvertCell(unittest.TestCase):
@@ -698,8 +740,10 @@ class TestProcess(unittest.TestCase):
         quotechar = '"'
         skip_header = 1
         skip_footer = 1
-        num_input_rows = target.process(input, output, config, delimiter,
-            quotechar, skip_header, skip_footer)
+        date_field_to_report_on = 5
+        (num_input_rows, oldest_date, most_recent_date) = target.process(input,
+            output, config, delimiter, quotechar, skip_header, skip_footer,
+            date_field_to_report_on)
         # Confirm the output file has been written and its content
         self.assertTrue(os.path.isfile(output_file))
         with open(output_file) as f:
@@ -718,6 +762,8 @@ class TestProcess(unittest.TestCase):
         os.remove(output_file)
         self.assertFalse(os.path.isfile(output_file))
         self.assertEqual(num_input_rows, 3)
+        self.assertEqual(oldest_date, "20200305")
+        self.assertEqual(most_recent_date, "20201225")
 
 
 class TestInit(unittest.TestCase):

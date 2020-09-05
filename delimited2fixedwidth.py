@@ -83,8 +83,13 @@ def convert_cell(value, output_format, idx_col, idx_row):
         converted_value = value
     return converted_value
 
-def convert_content(input_content, config):
+def convert_content(input_content, config, date_field_to_report_on=None):
     output_content = []
+    if date_field_to_report_on:
+        # Argument is 1-based
+        date_field_to_report_on -= 1
+    oldest_date = "99999999"
+    most_recent_date = "00000000"
     for idx_row, row in enumerate(input_content):
         converted_row_content = []
         # Confirm that the input_content doesn't have more fields than are
@@ -114,6 +119,12 @@ def convert_content(input_content, config):
 
             padded_output_value = pad_output_value(cell, output_format, length)
             converted_row_content.append(padded_output_value)
+
+            if date_field_to_report_on and date_field_to_report_on == idx_col:
+                if padded_output_value < oldest_date:
+                    oldest_date = padded_output_value
+                if padded_output_value > most_recent_date:
+                    most_recent_date = padded_output_value
         # Process fields not in the input content but defined in the
         # configuration file: empty padding, based on the defined output format
         for idx_col in range(len(row), len(config)):
@@ -124,7 +135,7 @@ def convert_content(input_content, config):
         output_content.append(''.join(converted_row_content))
 
     logging.debug("The output content:\n%s" % '\n'.join(output_content))
-    return output_content
+    return (output_content, oldest_date, most_recent_date)
 
 def read_input_file(input_file, delimiter, quotechar, skip_header, skip_footer):
     content = None
@@ -311,17 +322,18 @@ def parse_args(arguments):
     return args
 
 def process(input, output, config, delimiter, quotechar, skip_header,
-    skip_footer):
+    skip_footer, date_field_to_report_on=None):
     config = load_config(config)
 
     input_content = read_input_file(input, delimiter, quotechar, skip_header,
         skip_footer)
 
-    output_content = convert_content(input_content, config)
+    (output_content, oldest_date, most_recent_date) = convert_content(
+        input_content, config, date_field_to_report_on)
 
     write_output_file(output_content, output)
 
-    return len(input_content)
+    return (len(input_content), oldest_date, most_recent_date)
 
 def init():
     if __name__ == "__main__":

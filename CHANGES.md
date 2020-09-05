@@ -8,6 +8,7 @@ Non-breaking changes:
 ---------------------
 
 * Refactor code to be able to import `process()` from outside scripts
+  * Returns the number of processed rows and the oldest and most recent dates on a to-be-specified date field
 
 v0.0.2-alpha (2020-09-04)
 =========================
