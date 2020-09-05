@@ -321,6 +321,8 @@ def process(input, output, config, delimiter, quotechar, skip_header,
 
     write_output_file(output_content, output)
 
+    return len(input_content)
+
 def init():
     if __name__ == "__main__":
         # Parse the provided command-line arguments

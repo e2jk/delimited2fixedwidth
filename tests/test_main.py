@@ -698,8 +698,8 @@ class TestProcess(unittest.TestCase):
         quotechar = '"'
         skip_header = 1
         skip_footer = 1
-        target.process(input, output, config, delimiter, quotechar, skip_header,
-            skip_footer)
+        num_input_rows = target.process(input, output, config, delimiter,
+            quotechar, skip_header, skip_footer)
         # Confirm the output file has been written and its content
         self.assertTrue(os.path.isfile(output_file))
         with open(output_file) as f:
@@ -717,6 +717,7 @@ class TestProcess(unittest.TestCase):
         # Remove the output file
         os.remove(output_file)
         self.assertFalse(os.path.isfile(output_file))
+        self.assertEqual(num_input_rows, 3)
 
 
 class TestInit(unittest.TestCase):
