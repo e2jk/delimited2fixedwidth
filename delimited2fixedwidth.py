@@ -219,12 +219,20 @@ def load_config(config_file):
     logging.debug(config)
     return config
 
+def get_version(rel_path):
+    with open(rel_path) as f:
+        for line in f.read().splitlines():
+            if line.startswith('__version__'):
+                return line.split('"')[1]
+        else:
+            raise RuntimeError("Unable to find version string.")
+
 def parse_args(arguments):
     parser = argparse.ArgumentParser(description="Convert files from "\
         "delimited (e.g. CSV) to fixed width format")
     parser.add_argument('--version',
         action='version',
-        version='%(prog)s 0.0.3-dev'
+        version='%s %s' % ("%(prog)s", get_version("__init__.py"))
     )
 
     parser.add_argument("-i", "--input",

@@ -9,9 +9,11 @@ long_description = "%s\n\n%s" % (readme, changes)
 with open("requirements.txt", "r") as fh:
    requirements = fh.readlines()
 
+from delimited2fixedwidth import get_version
+
 setuptools.setup(
     name="delimited2fixedwidth",
-    version="0.0.3-dev",
+    version=get_version("__init__.py"),
     author="Emilien Klein",
     author_email="emilien@klein.st",
     description="Convert files from delimited (e.g. CSV) to fixed width format",

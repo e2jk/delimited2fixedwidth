@@ -565,6 +565,38 @@ class TestPadOutputValue(unittest.TestCase):
         self.assertEqual(output_value, "22        ")
 
 
+class TestGetVersion(unittest.TestCase):
+    def test_get_version_valid(self):
+        """
+        Test the script's version
+        """
+        version = target.get_version("__init__.py")
+        self.assertEqual("0.0.3-dev", version)
+
+    def test_get_version_invalid_file(self):
+        """
+        Test the Exception when getting the version from an invalid file
+        """
+        with self.assertRaises(RuntimeError) as cm:
+            version = target.get_version("LICENSE")
+        self.assertEqual(str(cm.exception), "Unable to find version string.")
+
+    def test_get_version_nonexistent_file(self):
+        """
+        Test the Exception when getting the version from a nonexistent file
+        """
+        nonexistent_file = "tests/sample_files/nonexistent_test_output.txt"
+        # Confirm the output file doesn't exist
+        if os.path.isfile(nonexistent_file):
+            os.remove(nonexistent_file)
+            self.assertFalse(os.path.isfile(nonexistent_file))
+        with self.assertRaises(FileNotFoundError) as cm:
+            version = target.get_version(nonexistent_file)
+        expected_output = "[Errno 2] No such file or directory: '%s'" % \
+            nonexistent_file
+        self.assertEqual(str(cm.exception), expected_output)
+
+
 class TestParseArgs(unittest.TestCase):
     def test_parse_args_no_arguments(self):
         """
