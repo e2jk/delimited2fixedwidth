@@ -4,4 +4,4 @@
 #    This file is part of delimited2fixedwidth and is MIT-licensed.
 from .delimited2fixedwidth import process
 
-__version__ = "0.0.3-dev"
+__version__ = "1.0.0"
