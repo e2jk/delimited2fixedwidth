@@ -8,6 +8,7 @@ Non-breaking changes:
 ---------------------
 
 * Expose command-line arguments for code that imports this module
+* Refactor some of the test suite
 
 v1.0.0 (2020-09-05)
 ===================

@@ -818,15 +818,13 @@ class TestInit(unittest.TestCase):
         """
         Test the init code with valid parameters
         """
-        output_file = "tests/sample_files/nonexistent_test_output.txt"
-        # Confirm the output file doesn't exist
-        if os.path.isfile(output_file):
-            os.remove(output_file)
-            self.assertFalse(os.path.isfile(output_file))
+        (temp_fd, output_file) = tempfile.mkstemp()
+        self.assertTrue(os.path.isfile(output_file))
         target.__name__ = "__main__"
         target.sys.argv = ["scriptname.py",
             "--input", "tests/sample_files/input1.txt",
             "--output", output_file,
+            "--overwrite-file",
             "--config", "tests/sample_files/configuration1.xlsx",
             "--delimiter", "^",
             "--skip-header", "1",
@@ -847,6 +845,7 @@ class TestInit(unittest.TestCase):
                     "Leendert MOLENDIJK [90038979]           "
             self.assertEqual(expected_output, s)
         # Remove the output file
+        os.close(temp_fd)
         os.remove(output_file)
         self.assertFalse(os.path.isfile(output_file))
 
