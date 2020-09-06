@@ -227,14 +227,35 @@ def get_version(rel_path):
         else:
             raise RuntimeError("Unable to find version string.")
 
-def parse_args(arguments):
-    parser = argparse.ArgumentParser(description="Convert files from "\
-        "delimited (e.g. CSV) to fixed width format")
-    parser.add_argument('--version',
-        action='version',
-        version='%s %s' % ("%(prog)s", get_version("__init__.py"))
-    )
+def validate_shared_args(args):
+    if not os.path.isfile(args.input):
+        logging.critical("The specified input file does not exist. Exiting...")
+        sys.exit(10)
+    if os.path.isfile(args.output) and not args.overwrite_file:
+        logging.critical("The specified output file does already exist, will "\
+            "NOT overwrite. Add the `--overwrite-file` argument to allow "\
+            "overwriting. Exiting...")
+        sys.exit(11)
+    if not os.path.isfile(args.config):
+        logging.critical("The specified configuration file does not exist. "\
+            "Exiting...")
+        sys.exit(12)
+    if args.skip_header != 0:
+        try:
+            args.skip_header = int(args.skip_header)
+        except ValueError:
+            logging.critical("The `--skip-header` argument must be numeric. "\
+                "Exiting...")
+            sys.exit(21)
+    if args.skip_footer != 0:
+        try:
+            args.skip_footer = int(args.skip_footer)
+        except ValueError:
+            logging.critical("The `--skip-footer` argument must be numeric. "\
+                "Exiting...")
+            sys.exit(22)
 
+def add_shared_args(parser):
     parser.add_argument("-i", "--input",
         help="Specify the input file",
         action='store',
@@ -280,6 +301,16 @@ def parse_args(arguments):
         default=0
     )
 
+def parse_args(arguments):
+    parser = argparse.ArgumentParser(description="Convert files from "\
+        "delimited (e.g. CSV) to fixed width format")
+    parser.add_argument('--version',
+        action='version',
+        version='%s %s' % ("%(prog)s", get_version("__init__.py"))
+    )
+
+    add_shared_args(parser)
+
     parser.add_argument(
         '-d', '--debug',
         help="Print lots of debugging statements",
@@ -299,32 +330,7 @@ def parse_args(arguments):
         args.logging_level = logging.getLevelName(args.loglevel)
 
     # Validate if the arguments are used correctly
-    if not os.path.isfile(args.input):
-        logging.critical("The specified input file does not exist. Exiting...")
-        sys.exit(10)
-    if os.path.isfile(args.output) and not args.overwrite_file:
-        logging.critical("The specified output file does already exist, will "\
-            "NOT overwrite. Add the `--overwrite-file` argument to allow "\
-            "overwriting. Exiting...")
-        sys.exit(11)
-    if not os.path.isfile(args.config):
-        logging.critical("The specified configuration file does not exist. "\
-            "Exiting...")
-        sys.exit(12)
-    if args.skip_header != 0:
-        try:
-            args.skip_header = int(args.skip_header)
-        except ValueError:
-            logging.critical("The `--skip-header` argument must be numeric. "\
-                "Exiting...")
-            sys.exit(21)
-    if args.skip_footer != 0:
-        try:
-            args.skip_footer = int(args.skip_footer)
-        except ValueError:
-            logging.critical("The `--skip-footer` argument must be numeric. "\
-                "Exiting...")
-            sys.exit(22)
+    validate_shared_args(args)
 
     logging.debug("These are the parsed arguments:\n'%s'" % args)
     return args
