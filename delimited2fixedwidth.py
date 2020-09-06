@@ -231,11 +231,6 @@ def validate_shared_args(args):
     if not os.path.isfile(args.input):
         logging.critical("The specified input file does not exist. Exiting...")
         sys.exit(10)
-    if os.path.isfile(args.output) and not args.overwrite_file:
-        logging.critical("The specified output file does already exist, will "\
-            "NOT overwrite. Add the `--overwrite-file` argument to allow "\
-            "overwriting. Exiting...")
-        sys.exit(11)
     if not os.path.isfile(args.config):
         logging.critical("The specified configuration file does not exist. "\
             "Exiting...")
@@ -260,16 +255,6 @@ def add_shared_args(parser):
         help="Specify the input file",
         action='store',
         required=True
-    )
-    parser.add_argument("-o", "--output",
-        help="Specify the output file",
-        action='store',
-        required=True
-    )
-    parser.add_argument("-x", "--overwrite-file",
-        help="Allow to overwrite the output file",
-        action='store_true',
-        required=False
     )
     parser.add_argument("-c", "--config",
         help="Specify the configuration file",
@@ -309,6 +294,17 @@ def parse_args(arguments):
         version='%s %s' % ("%(prog)s", get_version("__init__.py"))
     )
 
+    parser.add_argument("-o", "--output",
+        help="Specify the output file",
+        action='store',
+        required=True
+    )
+    parser.add_argument("-x", "--overwrite-file",
+        help="Allow to overwrite the output file",
+        action='store_true',
+        required=False
+    )
+
     add_shared_args(parser)
 
     parser.add_argument(
@@ -330,6 +326,11 @@ def parse_args(arguments):
         args.logging_level = logging.getLevelName(args.loglevel)
 
     # Validate if the arguments are used correctly
+    if os.path.isfile(args.output) and not args.overwrite_file:
+        logging.critical("The specified output file does already exist, will "\
+            "NOT overwrite. Add the `--overwrite-file` argument to allow "\
+            "overwriting. Exiting...")
+        sys.exit(11)
     validate_shared_args(args)
 
     logging.debug("These are the parsed arguments:\n'%s'" % args)

@@ -609,7 +609,7 @@ class TestParseArgs(unittest.TestCase):
             parser = target.parse_args([])
         self.assertEqual(cm.exception.code, 2)
         self.assertTrue("error: the following arguments are required: " \
-            "-i/--input, -o/--output, -c/--config" in f.getvalue())
+            "-o/--output, -i/--input, -c/--config" in f.getvalue())
 
     def test_parse_args_valid_arguments(self):
         """
@@ -812,7 +812,7 @@ class TestInit(unittest.TestCase):
             target.init()
         self.assertEqual(cm.exception.code, 2)
         self.assertTrue("error: the following arguments are required: " \
-            "-i/--input, -o/--output, -c/--config" in f.getvalue())
+            "-o/--output, -i/--input, -c/--config" in f.getvalue())
 
     def test_init_valid(self):
         """

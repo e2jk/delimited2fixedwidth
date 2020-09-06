@@ -7,7 +7,7 @@ v1.0.2 (TBD)
 Non-breaking changes:
 ---------------------
 
-*
+* Remove --output and --overwrite-file from the shared arguments
 
 v1.0.1 (2020-09-06)
 ===================
