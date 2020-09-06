@@ -571,7 +571,7 @@ class TestGetVersion(unittest.TestCase):
         Test the script's version
         """
         version = target.get_version("__init__.py")
-        self.assertEqual("1.0.0", version)
+        self.assertEqual("1.0.1-dev", version)
 
     def test_get_version_invalid_file(self):
         """
@@ -752,7 +752,7 @@ class TestParseArgs(unittest.TestCase):
         with self.assertRaises(SystemExit) as cm, contextlib.redirect_stdout(f):
             parser = target.parse_args(["--version"])
         self.assertEqual(cm.exception.code, 0)
-        self.assertTrue("scriptname.py 1.0.0" in f.getvalue())
+        self.assertTrue("scriptname.py 1.0.1-dev" in f.getvalue())
 
 
 class TestProcess(unittest.TestCase):
