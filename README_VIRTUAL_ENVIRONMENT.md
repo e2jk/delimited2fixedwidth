@@ -33,6 +33,6 @@ MS Windows equivalents:
 ```
 mkdir Documents\devel\delimited2fixedwidth\.venv-delimited2fixedwidth
 AppData\Local\Programs\Python\Python38-32\python.exe -m venv Documents\devel\delimited2fixedwidth\.venv-delimited2fixedwidth
-Documents\devel\delimited2fixedwidth\.venv-delimited2fixedwidth\Scripts\pip3.exe install -r Documents\devel\delimited2fixedwidth\requirements.txt
 Documents\devel\delimited2fixedwidth\.venv-delimited2fixedwidth\Scripts\activate.bat
+Documents\devel\delimited2fixedwidth\.venv-delimited2fixedwidth\Scripts\pip3.exe install -r Documents\devel\delimited2fixedwidth\requirements.txt
 ```

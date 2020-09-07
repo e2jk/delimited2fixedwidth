@@ -77,17 +77,18 @@ delimited2fixedwidth.exe --input data\input_file.txt --config data\configuration
 Program help information
 ------------------------
 ```
-usage: delimited2fixedwidth.exe [-h] -i INPUT -o OUTPUT [-x] -c CONFIG [-dl DELIMITER] [-q QUOTECHAR] [-sh SKIP_HEADER] [-sf SKIP_FOOTER] [-d] [-v]
+usage: delimited2fixedwidth.py [-h] [--version] -o OUTPUT [-x] -i INPUT -c CONFIG [-dl DELIMITER] [-q QUOTECHAR] [-sh SKIP_HEADER] [-sf SKIP_FOOTER] [-d] [-v]
 
 Convert files from delimited (e.g. CSV) to fixed width format
 
 optional arguments:
   -h, --help            show this help message and exit
-  -i INPUT, --input INPUT
-                        Specify the input file
+  --version             show program's version number and exit
   -o OUTPUT, --output OUTPUT
                         Specify the output file
   -x, --overwrite-file  Allow to overwrite the output file
+  -i INPUT, --input INPUT
+                        Specify the input file
   -c CONFIG, --config CONFIG
                         Specify the configuration file
   -dl DELIMITER, --delimiter DELIMITER
@@ -115,7 +116,9 @@ Building the executable
 
 Run the following command in your virtual environment:
 
-  `$ pyinstaller --onefile delimited2fixedwidth.py`
+```
+pyinstaller --onefile delimited2fixedwidth.py
+```
 
 The executable that gets created in the `dist` folder can then be uploaded to Github as a new release.
 
