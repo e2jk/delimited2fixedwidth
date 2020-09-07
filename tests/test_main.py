@@ -16,7 +16,7 @@ import contextlib
 import logging
 import tempfile
 
-CURRENT_VERSION = "1.0.2"
+CURRENT_VERSION = "1.0.3-dev"
 
 sys.path.append('.')
 target = __import__("delimited2fixedwidth")
