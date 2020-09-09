@@ -68,6 +68,8 @@ Running the program
 
 Open a Command Line window `cmd` and indicate your input file name, output file name and configuration file to use. You can additionally indicate if your input file uses a specific field separator (default is `,`), textual field wrapper (default is `"`), or if you want to skip a specific number of header or footer files from your input file.
 
+See the [Program help information](#program-help-information) section below for details on how to populate these arguments.
+
 An example run of the program could look like this:
 
 ```
@@ -77,7 +79,7 @@ delimited2fixedwidth.exe --input data\input_file.txt --config data\configuration
 Program help information
 ------------------------
 ```
-usage: delimited2fixedwidth.py [-h] [--version] -o OUTPUT [-x] -i INPUT -c CONFIG [-dl DELIMITER] [-q QUOTECHAR] [-sh SKIP_HEADER] [-sf SKIP_FOOTER] [-d] [-v]
+usage: delimited2fixedwidth.exe [-h] [--version] -o OUTPUT [-x] -i INPUT -c CONFIG [-dl DELIMITER] [-q QUOTECHAR] [-sh SKIP_HEADER] [-sf SKIP_FOOTER] [-d] [-v]
 
 Convert files from delimited (e.g. CSV) to fixed width format
 
