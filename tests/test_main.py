@@ -67,12 +67,12 @@ class TestLoadConfig(unittest.TestCase):
         config_file = "tests/sample_files/" \
             "configuration1_missing_mandatory_columns.xlsx"
         with self.assertRaises(SystemExit) as cm1, \
-            self.assertLogs(level='CRITICAL') as cm2:
-            config = target.load_config(config_file)
+                self.assertLogs(level='CRITICAL') as cm2:
+            target.load_config(config_file)
         self.assertEqual(cm1.exception.code, 13)
-        self.assertEqual(cm2.output, ["CRITICAL:root:Invalid config file, " \
-            "missing one of the columns 'Length', 'Output format' or 'Skip " \
-            "field'. Exiting..."])
+        self.assertEqual(cm2.output, [
+            "CRITICAL:root:Invalid config file, missing one of the columns "
+            "'Length', 'Output format' or 'Skip field'. Exiting..."])
 
     def test_load_config_invalid_length(self):
         """
@@ -80,12 +80,12 @@ class TestLoadConfig(unittest.TestCase):
         """
         config_file = "tests/sample_files/configuration1_invalid_length.xlsx"
         with self.assertRaises(SystemExit) as cm1, \
-            self.assertLogs(level='CRITICAL') as cm2:
-            config = target.load_config(config_file)
+                self.assertLogs(level='CRITICAL') as cm2:
+            target.load_config(config_file)
         self.assertEqual(cm1.exception.code, 14)
-        self.assertEqual(cm2.output, ["CRITICAL:root:Invalid value 'INVALID " \
-            "LENGTH' for the 'Length' column on row 3, must be a positive " \
-            "number. Exiting..."])
+        self.assertEqual(cm2.output, [
+            "CRITICAL:root:Invalid value 'INVALID LENGTH' for the 'Length' "
+            "column on row 3, must be a positive number. Exiting..."])
 
     def test_load_config_invalid_output_format(self):
         """
@@ -94,13 +94,13 @@ class TestLoadConfig(unittest.TestCase):
         config_file = "tests/sample_files/" \
             "configuration1_invalid_output_format.xlsx"
         with self.assertRaises(SystemExit) as cm1, \
-            self.assertLogs(level='CRITICAL') as cm2:
-            config = target.load_config(config_file)
+                self.assertLogs(level='CRITICAL') as cm2:
+            target.load_config(config_file)
         self.assertEqual(cm1.exception.code, 15)
-        self.assertEqual(cm2.output, ["CRITICAL:root:Invalid output format " \
-            "'INVALID OUTPUT FORMAT' on row 9, must be one  of 'Integer', " \
-            "'Decimal', 'Time', 'Text', 'Date (DD/MM/YYYY to YYYYMMDD)'. " \
-            "Exiting..."])
+        self.assertEqual(cm2.output, [
+            "CRITICAL:root:Invalid output format 'INVALID OUTPUT FORMAT' on "
+            "row 9, must be one  of 'Integer', 'Decimal', 'Time', 'Text', "
+            "'Date (DD/MM/YYYY to YYYYMMDD)'. Exiting..."])
 
     def test_load_config_invalid_skip_field(self):
         """
@@ -109,12 +109,13 @@ class TestLoadConfig(unittest.TestCase):
         config_file = "tests/sample_files/" \
             "configuration1_invalid_skip_field.xlsx"
         with self.assertRaises(SystemExit) as cm1, \
-            self.assertLogs(level='CRITICAL') as cm2:
-            config = target.load_config(config_file)
+                self.assertLogs(level='CRITICAL') as cm2:
+            target.load_config(config_file)
         self.assertEqual(cm1.exception.code, 16)
-        self.assertEqual(cm2.output, ["CRITICAL:root:Invalid value 'INVALID " \
-            "SKIP FIELD' for the 'Skip field' column on row 5, must be one  " \
-            "of 'True', 'False' or empty. Exiting..."])
+        self.assertEqual(cm2.output, [
+            "CRITICAL:root:Invalid value 'INVALID SKIP FIELD' for the 'Skip "
+            "field' column on row 5, must be one  of 'True', 'False' or "
+            "empty. Exiting..."])
 
 
 class TestReadInputFile(unittest.TestCase):
@@ -127,8 +128,8 @@ class TestReadInputFile(unittest.TestCase):
         quotechar = '"'
         skip_header = 1
         skip_footer = 1
-        input_content = target.read_input_file(input_file, delimiter, quotechar,
-            skip_header, skip_footer)
+        input_content = target.read_input_file(
+            input_file, delimiter, quotechar, skip_header, skip_footer)
         expected_output = [
             ['04000', '1330342', '541354', '1', '31/7/2020', '20:06',
                 'MOLENDIJK, LEENDERT', 'Leendert MOLENDIJK [90038979]'],
@@ -147,9 +148,9 @@ class TestReadInputFile(unittest.TestCase):
         quotechar = '"'
         skip_header = 1
         skip_footer = 1
-        with self.assertRaises(FileNotFoundError) as cm:
-            input_content = target.read_input_file(input_file, delimiter,
-                quotechar, skip_header, skip_footer)
+        with self.assertRaises(FileNotFoundError):
+            target.read_input_file(
+                input_file, delimiter, quotechar, skip_header, skip_footer)
 
 
 class TestConvertContent(unittest.TestCase):
@@ -169,18 +170,26 @@ class TestConvertContent(unittest.TestCase):
             ["2247", "Short text", "not important", "29/11/2020"]
         ]
         config = [
-            {"length": 4,
-            "output_format": "Time",
-            "skip_field": False},
-            {"length": 20,
-            "output_format": "Text",
-            "skip_field": False},
-            {"length": 0,
-            "output_format": "Text",
-            "skip_field": True},
-            {"length": 8,
-            "output_format": "Date (DD/MM/YYYY to YYYYMMDD)",
-            "skip_field": False},
+            {
+                "length": 4,
+                "output_format": "Time",
+                "skip_field": False
+            },
+            {
+                "length": 20,
+                "output_format": "Text",
+                "skip_field": False
+            },
+            {
+                "length": 0,
+                "output_format": "Text",
+                "skip_field": True
+            },
+            {
+                "length": 8,
+                "output_format": "Date (DD/MM/YYYY to YYYYMMDD)",
+                "skip_field": False
+            },
         ]
         (output_content, ignore1, ignore2) = target.convert_content(
             input_content, config)
@@ -199,26 +208,34 @@ class TestConvertContent(unittest.TestCase):
             ["01:42", "This text is too long", "blabla", "20/6/2020"]
         ]
         config = [
-            {"length": 4,
-            "output_format": "Time",
-            "skip_field": False},
-            {"length": 20,
-            "output_format": "Text",
-            "skip_field": False},
-            {"length": 0,
-            "output_format": "Text",
-            "skip_field": True},
-            {"length": 8,
-            "output_format": "Date (DD/MM/YYYY to YYYYMMDD)",
-            "skip_field": False},
+            {
+                "length": 4,
+                "output_format": "Time",
+                "skip_field": False
+            },
+            {
+                "length": 20,
+                "output_format": "Text",
+                "skip_field": False
+            },
+            {
+                "length": 0,
+                "output_format": "Text",
+                "skip_field": True
+            },
+            {
+                "length": 8,
+                "output_format": "Date (DD/MM/YYYY to YYYYMMDD)",
+                "skip_field": False
+            },
         ]
         with self.assertRaises(SystemExit) as cm1, \
-            self.assertLogs(level='CRITICAL') as cm2:
-            output_content = target.convert_content(input_content, config)
+                self.assertLogs(level='CRITICAL') as cm2:
+            target.convert_content(input_content, config)
         self.assertEqual(cm1.exception.code, 20)
-        self.assertEqual(cm2.output, ["CRITICAL:root:Field 2 on row 2 " \
-            "(ignoring the header) is too long! Length: 21, max length 20. " \
-            "Exiting..."])
+        self.assertEqual(cm2.output, [
+            "CRITICAL:root:Field 2 on row 2 (ignoring the header) is too "
+            "long! Length: 21, max length 20. Exiting..."])
 
     def test_convert_content_too_many_input_fields(self):
         """
@@ -230,27 +247,36 @@ class TestConvertContent(unittest.TestCase):
             ["01:42", "Another text", "blabla", "20/6/2020", "Extra field"]
         ]
         config = [
-            {"length": 4,
-            "output_format": "Time",
-            "skip_field": False},
-            {"length": 20,
-            "output_format": "Text",
-            "skip_field": False},
-            {"length": 0,
-            "output_format": "Text",
-            "skip_field": True},
-            {"length": 8,
-            "output_format": "Date (DD/MM/YYYY to YYYYMMDD)",
-            "skip_field": False},
+            {
+                "length": 4,
+                "output_format": "Time",
+                "skip_field": False
+            },
+            {
+                "length": 20,
+                "output_format": "Text",
+                "skip_field": False
+            },
+            {
+                "length": 0,
+                "output_format": "Text",
+                "skip_field": True
+            },
+            {
+                "length": 8,
+                "output_format": "Date (DD/MM/YYYY to YYYYMMDD)",
+                "skip_field": False
+            },
         ]
         with self.assertRaises(SystemExit) as cm1, \
-            self.assertLogs(level='CRITICAL') as cm2:
-            output_content = target.convert_content(input_content, config)
+                self.assertLogs(level='CRITICAL') as cm2:
+            target.convert_content(input_content, config)
         self.assertEqual(cm1.exception.code, 23)
-        self.assertEqual(cm2.output, ["CRITICAL:root:Row 2 (ignoring the " \
-            "header) has more fields than are defined in the configuration " \
-            "file! The row has 5 fields while the configuration defines only " \
-            "4 possible fields. Exiting..."])
+        self.assertEqual(cm2.output, [
+            "CRITICAL:root:Row 2 (ignoring the header) has more fields than "
+            "are defined in the configuration file! The row has 5 fields "
+            "while the configuration defines only 4 possible fields. "
+            "Exiting..."])
 
     def test_convert_content_less_input_fields(self):
         """
@@ -262,21 +288,31 @@ class TestConvertContent(unittest.TestCase):
             ["2247", "Short text", "not important"]
         ]
         config = [
-            {"length": 4,
-            "output_format": "Time",
-            "skip_field": False},
-            {"length": 20,
-            "output_format": "Text",
-            "skip_field": False},
-            {"length": 0,
-            "output_format": "Text",
-            "skip_field": True},
-            {"length": 8,
-            "output_format": "Date (DD/MM/YYYY to YYYYMMDD)",
-            "skip_field": False},
-            {"length": 10,
-            "output_format": "Integer",
-            "skip_field": False},
+            {
+                "length": 4,
+                "output_format": "Time",
+                "skip_field": False
+            },
+            {
+                "length": 20,
+                "output_format": "Text",
+                "skip_field": False
+            },
+            {
+                "length": 0,
+                "output_format": "Text",
+                "skip_field": True
+            },
+            {
+                "length": 8,
+                "output_format": "Date (DD/MM/YYYY to YYYYMMDD)",
+                "skip_field": False
+            },
+            {
+                "length": 10,
+                "output_format": "Integer",
+                "skip_field": False
+            },
         ]
         (output_content, ignore1, ignore2) = target.convert_content(
             input_content, config)
@@ -298,23 +334,31 @@ class TestConvertContent(unittest.TestCase):
             ["2247", "Short text", "not important", "10/10/2020"]
         ]
         config = [
-            {"length": 4,
-            "output_format": "Time",
-            "skip_field": False},
-            {"length": 20,
-            "output_format": "Text",
-            "skip_field": False},
-            {"length": 0,
-            "output_format": "Text",
-            "skip_field": True},
-            {"length": 8,
-            "output_format": "Date (DD/MM/YYYY to YYYYMMDD)",
-            "skip_field": False},
+            {
+                "length": 4,
+                "output_format": "Time",
+                "skip_field": False
+            },
+            {
+                "length": 20,
+                "output_format": "Text",
+                "skip_field": False
+            },
+            {
+                "length": 0,
+                "output_format": "Text",
+                "skip_field": True
+            },
+            {
+                "length": 8,
+                "output_format": "Date (DD/MM/YYYY to YYYYMMDD)",
+                "skip_field": False
+            },
         ]
         date_field_to_report_on = 4
         (output_content, oldest_date, most_recent_date) = \
-            target.convert_content(input_content, config,
-                date_field_to_report_on)
+            target.convert_content(
+                input_content, config, date_field_to_report_on)
         expected_output = [
             "0142This is just text   20200620",
             "2247Short text          20200917",
@@ -347,30 +391,32 @@ class TestConvertCell(unittest.TestCase):
         Test converting an invalid time element, numeric
         """
         with self.assertRaises(SystemExit) as cm1, \
-            self.assertLogs(level='CRITICAL') as cm2:
-            output_value = target.convert_cell("142", "Time", 2, 3)
+                self.assertLogs(level='CRITICAL') as cm2:
+            target.convert_cell("142", "Time", 2, 3)
         self.assertEqual(cm1.exception.code, 17)
-        self.assertEqual(cm2.output, ["CRITICAL:root:Invalid time format " \
-            "'142' in field 2 on row 3 (ignoring the header). Exiting..."])
+        self.assertEqual(cm2.output, [
+            "CRITICAL:root:Invalid time format '142' in field 2 on row 3 "
+            "(ignoring the header). Exiting..."])
 
     def test_convert_cell_time_invalid_alphanumeric(self):
         """
         Test converting an invalid time element, alphanumeric value
         """
         with self.assertRaises(SystemExit) as cm1, \
-            self.assertLogs(level='CRITICAL') as cm2:
-            output_value = target.convert_cell("ab:cd", "Time", 2, 3)
+                self.assertLogs(level='CRITICAL') as cm2:
+            target.convert_cell("ab:cd", "Time", 2, 3)
         self.assertEqual(cm1.exception.code, 17)
-        self.assertEqual(cm2.output, ["CRITICAL:root:Invalid time format " \
-            "'ab:cd' in field 2 on row 3 (ignoring the header). Exiting..."])
+        self.assertEqual(cm2.output, [
+            "CRITICAL:root:Invalid time format 'ab:cd' in field 2 on row 3 "
+            "(ignoring the header). Exiting..."])
 
     def test_convert_cell_date_ddmmyyyy_slashes(self):
         """
         Test converting a valid date value with format DD/MM/YYYY
         """
         date = "03/11/1981"
-        output_value = target.convert_cell(date,
-            "Date (DD/MM/YYYY to YYYYMMDD)", 2, 3)
+        output_value = target.convert_cell(
+            date, "Date (DD/MM/YYYY to YYYYMMDD)", 2, 3)
         self.assertEqual(output_value, "19811103")
 
     def test_convert_cell_date_mmddyyyy_slashes(self):
@@ -378,8 +424,8 @@ class TestConvertCell(unittest.TestCase):
         Test converting a valid date value with format MM/DD/YYYY
         """
         date = "11/03/1981"
-        output_value = target.convert_cell(date,
-            "Date (MM/DD/YYYY to YYYYMMDD)", 2, 3)
+        output_value = target.convert_cell(
+            date, "Date (MM/DD/YYYY to YYYYMMDD)", 2, 3)
         self.assertEqual(output_value, "19811103")
 
     def test_convert_cell_date_ddmmyyyy_slashes_short(self):
@@ -388,8 +434,8 @@ class TestConvertCell(unittest.TestCase):
         single-digit day and month
         """
         date = "3/1/1981"
-        output_value = target.convert_cell(date,
-            "Date (DD/MM/YYYY to YYYYMMDD)", 2, 3)
+        output_value = target.convert_cell(
+            date, "Date (DD/MM/YYYY to YYYYMMDD)", 2, 3)
         self.assertEqual(output_value, "19810103")
 
     def test_convert_cell_date_mmddyyyy_slashes_short(self):
@@ -398,8 +444,8 @@ class TestConvertCell(unittest.TestCase):
         single-digit day and month
         """
         date = "1/3/1981"
-        output_value = target.convert_cell(date,
-            "Date (MM/DD/YYYY to YYYYMMDD)", 2, 3)
+        output_value = target.convert_cell(
+            date, "Date (MM/DD/YYYY to YYYYMMDD)", 2, 3)
         self.assertEqual(output_value, "19810103")
 
     def test_convert_cell_date_ddmmyyyy_slashes_invalid_date(self):
@@ -408,13 +454,13 @@ class TestConvertCell(unittest.TestCase):
         """
         date = "30/02/1981"
         with self.assertRaises(SystemExit) as cm1, \
-            self.assertLogs(level='CRITICAL') as cm2:
-            output_value = target.convert_cell(date,
-                "Date (DD/MM/YYYY to YYYYMMDD)", 43, 22)
+                self.assertLogs(level='CRITICAL') as cm2:
+            target.convert_cell(date, "Date (DD/MM/YYYY to YYYYMMDD)", 43, 22)
         self.assertEqual(cm1.exception.code, 18)
-        self.assertEqual(cm2.output, ["CRITICAL:root:Invalid date value " \
-            "'30/02/1981' for format 'Date (DD/MM/YYYY to YYYYMMDD)' in " \
-            "field 43 on row 22 (ignoring the header). Exiting..."])
+        self.assertEqual(cm2.output, [
+            "CRITICAL:root:Invalid date value '30/02/1981' for format 'Date "
+            "(DD/MM/YYYY to YYYYMMDD)' in field 43 on row 22 (ignoring the "
+            "header). Exiting..."])
 
     def test_convert_cell_date_ddmmyyyy_slashes_invalid_format(self):
         """
@@ -422,13 +468,13 @@ class TestConvertCell(unittest.TestCase):
         """
         date = "1981/11/03"
         with self.assertRaises(SystemExit) as cm1, \
-            self.assertLogs(level='CRITICAL') as cm2:
-            output_value = target.convert_cell(date,
-                "Date (DD/MM/YYYY to YYYYMMDD)", 6, 77)
+                self.assertLogs(level='CRITICAL') as cm2:
+            target.convert_cell(date, "Date (DD/MM/YYYY to YYYYMMDD)", 6, 77)
         self.assertEqual(cm1.exception.code, 18)
-        self.assertEqual(cm2.output, ["CRITICAL:root:Invalid date value " \
-            "'1981/11/03' for format 'Date (DD/MM/YYYY to YYYYMMDD)' in " \
-            "field 6 on row 77 (ignoring the header). Exiting..."])
+        self.assertEqual(cm2.output, [
+            "CRITICAL:root:Invalid date value '1981/11/03' for format 'Date "
+            "(DD/MM/YYYY to YYYYMMDD)' in field 6 on row 77 (ignoring the "
+            "header). Exiting..."])
 
     def test_convert_cell_date_mmddyyyy_slashes_invalid_date(self):
         """
@@ -436,13 +482,13 @@ class TestConvertCell(unittest.TestCase):
         """
         date = "02/30/1981"
         with self.assertRaises(SystemExit) as cm1, \
-            self.assertLogs(level='CRITICAL') as cm2:
-            output_value = target.convert_cell(date,
-                "Date (MM/DD/YYYY to YYYYMMDD)", 43, 22)
+                self.assertLogs(level='CRITICAL') as cm2:
+            target.convert_cell(date, "Date (MM/DD/YYYY to YYYYMMDD)", 43, 22)
         self.assertEqual(cm1.exception.code, 18)
-        self.assertEqual(cm2.output, ["CRITICAL:root:Invalid date value " \
-            "'02/30/1981' for format 'Date (MM/DD/YYYY to YYYYMMDD)' in " \
-            "field 43 on row 22 (ignoring the header). Exiting..."])
+        self.assertEqual(cm2.output, [
+            "CRITICAL:root:Invalid date value '02/30/1981' for format 'Date "
+            "(MM/DD/YYYY to YYYYMMDD)' in field 43 on row 22 (ignoring the "
+            "header). Exiting..."])
 
     def test_convert_cell_date_mmddyyyy_slashes_invalid_format(self):
         """
@@ -450,13 +496,13 @@ class TestConvertCell(unittest.TestCase):
         """
         date = "1981/11/03"
         with self.assertRaises(SystemExit) as cm1, \
-            self.assertLogs(level='CRITICAL') as cm2:
-            output_value = target.convert_cell(date,
-                "Date (MM/DD/YYYY to YYYYMMDD)", 6, 77)
+                self.assertLogs(level='CRITICAL') as cm2:
+            target.convert_cell(date, "Date (MM/DD/YYYY to YYYYMMDD)", 6, 77)
         self.assertEqual(cm1.exception.code, 18)
-        self.assertEqual(cm2.output, ["CRITICAL:root:Invalid date value " \
-            "'1981/11/03' for format 'Date (MM/DD/YYYY to YYYYMMDD)' in " \
-            "field 6 on row 77 (ignoring the header). Exiting..."])
+        self.assertEqual(cm2.output, [
+            "CRITICAL:root:Invalid date value '1981/11/03' for format 'Date "
+            "(MM/DD/YYYY to YYYYMMDD)' in field 6 on row 77 (ignoring the "
+            "header). Exiting..."])
 
     def test_convert_cell_decimal(self):
         """
@@ -487,11 +533,12 @@ class TestConvertCell(unittest.TestCase):
         Test converting an invalid decimal element, alphanumeric value
         """
         with self.assertRaises(SystemExit) as cm1, \
-            self.assertLogs(level='CRITICAL') as cm2:
-            output_value = target.convert_cell("ab:cd", "Decimal", 4, 5)
+                self.assertLogs(level='CRITICAL') as cm2:
+            target.convert_cell("ab:cd", "Decimal", 4, 5)
         self.assertEqual(cm1.exception.code, 19)
-        self.assertEqual(cm2.output, ["CRITICAL:root:Invalid decimal format " \
-            "'ab:cd' in field 4 on row 5 (ignoring the header). Exiting..."])
+        self.assertEqual(cm2.output, [
+            "CRITICAL:root:Invalid decimal format 'ab:cd' in field 4 on row "
+            "5 (ignoring the header). Exiting..."])
 
     def test_convert_cell_text(self):
         """
@@ -580,7 +627,7 @@ class TestGetVersion(unittest.TestCase):
         Test the Exception when getting the version from an invalid file
         """
         with self.assertRaises(RuntimeError) as cm:
-            version = target.get_version("LICENSE")
+            target.get_version("LICENSE")
         self.assertEqual(str(cm.exception), "Unable to find version string.")
 
     def test_get_version_nonexistent_file(self):
@@ -593,7 +640,7 @@ class TestGetVersion(unittest.TestCase):
             os.remove(nonexistent_file)
             self.assertFalse(os.path.isfile(nonexistent_file))
         with self.assertRaises(FileNotFoundError) as cm:
-            version = target.get_version(nonexistent_file)
+            target.get_version(nonexistent_file)
         expected_output = "[Errno 2] No such file or directory: '%s'" % \
             nonexistent_file
         self.assertEqual(str(cm.exception), expected_output)
@@ -605,11 +652,13 @@ class TestParseArgs(unittest.TestCase):
         Test running the script without any of the required arguments
         """
         f = io.StringIO()
-        with self.assertRaises(SystemExit) as cm, contextlib.redirect_stderr(f):
-            parser = target.parse_args([])
+        with self.assertRaises(SystemExit) as cm, \
+                contextlib.redirect_stderr(f):
+            target.parse_args([])
         self.assertEqual(cm.exception.code, 2)
-        self.assertTrue("error: the following arguments are required: " \
-            "-o/--output, -i/--input, -c/--config" in f.getvalue())
+        self.assertTrue(
+            "error: the following arguments are required: -o/--output, "
+            "-i/--input, -c/--config" in f.getvalue())
 
     def test_parse_args_valid_arguments(self):
         """
@@ -622,8 +671,8 @@ class TestParseArgs(unittest.TestCase):
         if os.path.isfile(output_file):
             os.remove(output_file)
             self.assertFalse(os.path.isfile(output_file))
-        parser = target.parse_args(["-i", input_file, "-o", output_file,
-            "-c", config_file])
+        parser = target.parse_args([
+            "-i", input_file, "-o", output_file, "-c", config_file])
         self.assertEqual(parser.input, input_file)
         self.assertEqual(parser.config, config_file)
         self.assertEqual(parser.loglevel, logging.WARNING)
@@ -641,16 +690,18 @@ class TestParseArgs(unittest.TestCase):
             os.remove(output_file)
             self.assertFalse(os.path.isfile(output_file))
         with self.assertLogs(level='DEBUG') as cm:
-            parser = target.parse_args(["-i", input_file, "-o", output_file,
-                "-c", config_file, "--debug"])
+            parser = target.parse_args([
+                "-i", input_file, "-o", output_file, "-c", config_file,
+                "--debug"])
         self.assertEqual(parser.loglevel, logging.DEBUG)
         self.assertEqual(parser.logging_level, "DEBUG")
-        self.assertEqual(cm.output, ["DEBUG:root:These are the parsed " \
-            "arguments:\n'Namespace(config='tests/sample_files/configuration1" \
-            ".xlsx', delimiter=',', input='tests/sample_files/input1.txt', " \
-            "logging_level='DEBUG', loglevel=10, output='tests/sample_files/" \
-            "nonexistent_test_output.txt', overwrite_file=False, " \
-            "quotechar='\"', skip_footer=0, skip_header=0)'"])
+        self.assertEqual(cm.output, [
+            "DEBUG:root:These are the parsed arguments:\n'Namespace(config="
+            "'tests/sample_files/configuration1.xlsx', delimiter=',', "
+            "input='tests/sample_files/input1.txt', logging_level='DEBUG', "
+            "loglevel=10, output='tests/sample_files/nonexistent_test_"
+            "output.txt', overwrite_file=False, quotechar='\"', "
+            "skip_footer=0, skip_header=0)'"])
 
     def test_parse_args_invalid_input_file(self):
         """
@@ -666,12 +717,13 @@ class TestParseArgs(unittest.TestCase):
         # Confirm the input file doesn't exist
         self.assertFalse(os.path.isfile(input_file))
         with self.assertRaises(SystemExit) as cm1, \
-            self.assertLogs(level='CRITICAL') as cm2:
-            parser = target.parse_args(["-i", input_file, "-o", output_file,
-                "-c", config_file])
+                self.assertLogs(level='CRITICAL') as cm2:
+            target.parse_args([
+                "-i", input_file, "-o", output_file, "-c", config_file])
         self.assertEqual(cm1.exception.code, 10)
-        self.assertEqual(cm2.output, ["CRITICAL:root:The specified input " \
-            "file does not exist. Exiting..."])
+        self.assertEqual(cm2.output, [
+            "CRITICAL:root:The specified input file does not exist. "
+            "Exiting..."])
 
     def test_parse_args_invalid_config_file(self):
         """
@@ -687,12 +739,13 @@ class TestParseArgs(unittest.TestCase):
         # Confirm the config file doesn't exist
         self.assertFalse(os.path.isfile(config_file))
         with self.assertRaises(SystemExit) as cm1, \
-            self.assertLogs(level='CRITICAL') as cm2:
-            parser = target.parse_args(["-i", input_file, "-o", output_file,
-                "-c", config_file])
+                self.assertLogs(level='CRITICAL') as cm2:
+            target.parse_args([
+                "-i", input_file, "-o", output_file, "-c", config_file])
         self.assertEqual(cm1.exception.code, 12)
-        self.assertEqual(cm2.output, ["CRITICAL:root:The specified " \
-            "configuration file does not exist. Exiting..."])
+        self.assertEqual(cm2.output, [
+            "CRITICAL:root:The specified configuration file does not exist. "
+            "Exiting..."])
 
     def test_parse_args_existing_output_file_no_overwrite(self):
         """
@@ -705,13 +758,14 @@ class TestParseArgs(unittest.TestCase):
         (temp_fd, temp_output_file) = tempfile.mkstemp()
         self.assertTrue(os.path.isfile(temp_output_file))
         with self.assertRaises(SystemExit) as cm1, \
-            self.assertLogs(level='CRITICAL') as cm2:
-            parser = target.parse_args(["-i", input_file,
-                "-o", temp_output_file, "-c", config_file])
+                self.assertLogs(level='CRITICAL') as cm2:
+            target.parse_args([
+                "-i", input_file, "-o", temp_output_file, "-c", config_file])
         self.assertEqual(cm1.exception.code, 11)
-        self.assertEqual(cm2.output, ['CRITICAL:root:The specified output file '
-            'does already exist, will NOT overwrite. Add the `--overwrite-file`'
-            ' argument to allow overwriting. Exiting...'])
+        self.assertEqual(cm2.output, [
+            'CRITICAL:root:The specified output file does already exist, will '
+            'NOT overwrite. Add the `--overwrite-file` argument to allow '
+            'overwriting. Exiting...'])
         # Delete the temporary file created by the test
         os.close(temp_fd)
         os.remove(temp_output_file)
@@ -724,12 +778,14 @@ class TestParseArgs(unittest.TestCase):
         output_file = "tests/sample_files/nonexistent_test_output.txt"
         config_file = "tests/sample_files/configuration1.xlsx"
         with self.assertRaises(SystemExit) as cm1, \
-            self.assertLogs(level='CRITICAL') as cm2:
-            parser = target.parse_args(["-i", input_file,
-                "-o", output_file, "-c", config_file, "-sh", "INVALID"])
+                self.assertLogs(level='CRITICAL') as cm2:
+            target.parse_args([
+                "-i", input_file, "-o", output_file, "-c", config_file,
+                "-sh", "INVALID"])
         self.assertEqual(cm1.exception.code, 21)
-        self.assertEqual(cm2.output, ['CRITICAL:root:The `--skip-header` ' \
-            'argument must be numeric. Exiting...'])
+        self.assertEqual(cm2.output, [
+            'CRITICAL:root:The `--skip-header` argument must be numeric. '
+            'Exiting...'])
 
     def test_parse_args_skip_footer_str(self):
         """
@@ -739,20 +795,23 @@ class TestParseArgs(unittest.TestCase):
         output_file = "tests/sample_files/nonexistent_test_output.txt"
         config_file = "tests/sample_files/configuration1.xlsx"
         with self.assertRaises(SystemExit) as cm1, \
-            self.assertLogs(level='CRITICAL') as cm2:
-            parser = target.parse_args(["-i", input_file,
-                "-o", output_file, "-c", config_file, "-sf", "INVALID"])
+                self.assertLogs(level='CRITICAL') as cm2:
+            target.parse_args([
+                "-i", input_file, "-o", output_file, "-c", config_file,
+                "-sf", "INVALID"])
         self.assertEqual(cm1.exception.code, 22)
-        self.assertEqual(cm2.output, ['CRITICAL:root:The `--skip-footer` ' \
-            'argument must be numeric. Exiting...'])
+        self.assertEqual(cm2.output, [
+            'CRITICAL:root:The `--skip-footer` argument must be numeric. '
+            'Exiting...'])
 
     def test_parse_args_version(self):
         """
         Test the --version argument
         """
         f = io.StringIO()
-        with self.assertRaises(SystemExit) as cm, contextlib.redirect_stdout(f):
-            parser = target.parse_args(["--version"])
+        with self.assertRaises(SystemExit) as cm, \
+                contextlib.redirect_stdout(f):
+            target.parse_args(["--version"])
         self.assertEqual(cm.exception.code, 0)
         self.assertTrue("scriptname.py %s" % CURRENT_VERSION in f.getvalue())
 
@@ -775,22 +834,22 @@ class TestProcess(unittest.TestCase):
         skip_header = 1
         skip_footer = 1
         date_field_to_report_on = 5
-        (num_input_rows, oldest_date, most_recent_date) = target.process(input,
-            output, config, delimiter, quotechar, skip_header, skip_footer,
-            date_field_to_report_on)
+        (num_input_rows, oldest_date, most_recent_date) = target.process(
+            input, output, config, delimiter, quotechar, skip_header,
+            skip_footer, date_field_to_report_on)
         # Confirm the output file has been written and its content
         self.assertTrue(os.path.isfile(output_file))
         with open(output_file) as f:
             s = f.read()
             expected_output = "0004000133034205413540000100202007312006" \
-                    "                                        " \
-                    "Leendert MOLENDIJK [90038979]           \n" \
+                "                                        " \
+                "Leendert MOLENDIJK [90038979]           \n" \
                 "0004000133034005407940000157202003051022" \
-                    "                                        " \
-                    "Leendert MOLENDIJK [90038979]           \n" \
+                "                                        " \
+                "Leendert MOLENDIJK [90038979]           \n" \
                 "0004000133034105409340022139202012252006" \
-                    "                                        " \
-                    "Leendert MOLENDIJK [90038979]           "
+                "                                        " \
+                "Leendert MOLENDIJK [90038979]           "
             self.assertEqual(expected_output, s)
         # Remove the output file
         os.remove(output_file)
@@ -808,11 +867,13 @@ class TestInit(unittest.TestCase):
         target.__name__ = "__main__"
         target.sys.argv = ["scriptname.py"]
         f = io.StringIO()
-        with self.assertRaises(SystemExit) as cm, contextlib.redirect_stderr(f):
+        with self.assertRaises(SystemExit) as cm, \
+                contextlib.redirect_stderr(f):
             target.init()
         self.assertEqual(cm.exception.code, 2)
-        self.assertTrue("error: the following arguments are required: " \
-            "-o/--output, -i/--input, -c/--config" in f.getvalue())
+        self.assertTrue(
+            "error: the following arguments are required: -o/--output, "
+            "-i/--input, -c/--config" in f.getvalue())
 
     def test_init_valid(self):
         """
@@ -821,7 +882,8 @@ class TestInit(unittest.TestCase):
         (temp_fd, output_file) = tempfile.mkstemp()
         self.assertTrue(os.path.isfile(output_file))
         target.__name__ = "__main__"
-        target.sys.argv = ["scriptname.py",
+        target.sys.argv = [
+            "scriptname.py",
             "--input", "tests/sample_files/input1.txt",
             "--output", output_file,
             "--overwrite-file",
@@ -835,14 +897,14 @@ class TestInit(unittest.TestCase):
         with open(output_file) as f:
             s = f.read()
             expected_output = "0004000133034205413540000100202007312006" \
-                    "                                        " \
-                    "Leendert MOLENDIJK [90038979]           \n" \
+                "                                        " \
+                "Leendert MOLENDIJK [90038979]           \n" \
                 "0004000133034005407940000157202003051022" \
-                    "                                        " \
-                    "Leendert MOLENDIJK [90038979]           \n" \
+                "                                        " \
+                "Leendert MOLENDIJK [90038979]           \n" \
                 "0004000133034105409340022139202012252006" \
-                    "                                        " \
-                    "Leendert MOLENDIJK [90038979]           "
+                "                                        " \
+                "Leendert MOLENDIJK [90038979]           "
             self.assertEqual(expected_output, s)
         # Remove the output file
         os.close(temp_fd)
@@ -869,8 +931,9 @@ class TestLicense(unittest.TestCase):
         with open('delimited2fixedwidth.py') as f:
             s = f.read()
             # Confirm it is the MIT License
-            self.assertTrue("#    This file is part of delimited2fixedwidth " \
-                "and is MIT-licensed." in s)
+            self.assertTrue(
+                "#    This file is part of delimited2fixedwidth and is "
+                "MIT-licensed." in s)
 
 
 if __name__ == '__main__':
