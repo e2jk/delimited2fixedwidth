@@ -122,8 +122,8 @@ def convert_content(input_content, config, date_field_to_report_on=None):
             else:
                 cell = convert_cell(cell, output_format, idx_col+1, idx_row+1)
 
-            # Confirm that the length of the field (before padding) is less than
-            # the maximum allowed length
+            # Confirm that the length of the field (before padding) is less
+            # than the maximum allowed length
             if len(cell) > config[idx_col]["length"]:
                 logging.critical(
                     "Field %d on row %d (ignoring the header) is too long! "
@@ -155,7 +155,8 @@ def convert_content(input_content, config, date_field_to_report_on=None):
     return (output_content, oldest_date, most_recent_date)
 
 
-def read_input_file(input_file, delimiter, quotechar, skip_header, skip_footer):
+def read_input_file(input_file, delimiter, quotechar, skip_header,
+                    skip_footer):
     content = None
     with open(input_file, newline='') as csvfile:
         content = csv.reader(csvfile, delimiter=delimiter, quotechar=quotechar)
@@ -311,7 +312,8 @@ def add_shared_args(parser):
     )
     parser.add_argument(
         "-q", "--quotechar",
-        help='The character used to wrap textual fields in the input file (default ")',
+        help='The character used to wrap textual fields in the input file '
+             '(default ")',
         action='store',
         required=False,
         default='"'
