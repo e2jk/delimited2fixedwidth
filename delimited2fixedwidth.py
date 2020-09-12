@@ -15,7 +15,7 @@ import datetime
 
 def write_output_file(output_content, output_file):
     with open(output_file, "w") as ofile:
-        ofile.write('\n'.join(output_content))
+        ofile.write("\n".join(output_content))
 
 
 def pad_output_value(val, output_format, length):
@@ -42,7 +42,8 @@ def convert_cell(value, output_format, idx_col, idx_row):
             )
             sys.exit(17)
     elif output_format in (
-        "Date (DD/MM/YYYY to YYYYMMDD)", "Date (MM/DD/YYYY to YYYYMMDD)"
+        "Date (DD/MM/YYYY to YYYYMMDD)",
+        "Date (MM/DD/YYYY to YYYYMMDD)",
     ):
         if "Date (DD/MM/YYYY to YYYYMMDD)" == output_format:
             m = re.match(r"([0123]?\d)/([01]?\d)/(\d{4})", value)
@@ -60,15 +61,14 @@ def convert_cell(value, output_format, idx_col, idx_row):
             converted_value = "%s%s%s" % (year, month, day)
             # Is it a valid date?
             try:
-                datetime.datetime.strptime(converted_value, '%Y%m%d')
+                datetime.datetime.strptime(converted_value, "%Y%m%d")
             except ValueError:
                 converted_value = ""
         if not converted_value:
             logging.critical(
                 "Invalid date value '%s' for format '%s' in field %d on row "
-                "%d (ignoring the header). Exiting..." % (
-                    value, output_format, idx_col, idx_row
-                )
+                "%d (ignoring the header). Exiting..."
+                % (value, output_format, idx_col, idx_row)
             )
             sys.exit(18)
     elif "Decimal" == output_format:
@@ -79,7 +79,7 @@ def convert_cell(value, output_format, idx_col, idx_row):
             # convert to integer (to drop the extra decimal values) then
             # finally back to string...
             converted_value = float(value)
-            converted_value = converted_value*100
+            converted_value = converted_value * 100
             converted_value = round(converted_value, 0)
             converted_value = int(converted_value)
             converted_value = str(converted_value)
@@ -110,7 +110,7 @@ def convert_content(input_content, config, date_field_to_report_on=None):
                 "Row %d (ignoring the header) has more fields than are "
                 "defined in the configuration file! The row has %d fields "
                 "while the configuration defines only %d possible fields. "
-                "Exiting..." % (idx_row+1, len(row), len(config))
+                "Exiting..." % (idx_row + 1, len(row), len(config))
             )
             sys.exit(23)
         for idx_col, cell in enumerate(row):
@@ -120,17 +120,15 @@ def convert_content(input_content, config, date_field_to_report_on=None):
             if config[idx_col]["skip_field"]:
                 cell = ""
             else:
-                cell = convert_cell(cell, output_format, idx_col+1, idx_row+1)
+                cell = convert_cell(cell, output_format, idx_col + 1, idx_row + 1)
 
             # Confirm that the length of the field (before padding) is less
             # than the maximum allowed length
             if len(cell) > config[idx_col]["length"]:
                 logging.critical(
                     "Field %d on row %d (ignoring the header) is too long! "
-                    "Length: %d, max length %d. Exiting..." % (
-                        idx_col+1, idx_row+1, len(cell),
-                        config[idx_col]["length"]
-                    )
+                    "Length: %d, max length %d. Exiting..."
+                    % (idx_col + 1, idx_row + 1, len(cell), config[idx_col]["length"])
                 )
                 sys.exit(20)
 
@@ -149,37 +147,40 @@ def convert_content(input_content, config, date_field_to_report_on=None):
             length = config[idx_col]["length"]
             padded_output_value = pad_output_value("", output_format, length)
             converted_row_content.append(padded_output_value)
-        output_content.append(''.join(converted_row_content))
+        output_content.append("".join(converted_row_content))
 
-    logging.debug("The output content:\n%s" % '\n'.join(output_content))
+    logging.debug("The output content:\n%s" % "\n".join(output_content))
     return (output_content, oldest_date, most_recent_date)
 
 
-def read_input_file(input_file, delimiter, quotechar, skip_header,
-                    skip_footer):
+def read_input_file(input_file, delimiter, quotechar, skip_header, skip_footer):
     content = None
-    with open(input_file, newline='') as csvfile:
+    with open(input_file, newline="") as csvfile:
         content = csv.reader(csvfile, delimiter=delimiter, quotechar=quotechar)
         # Skip the header and footer if necessary
         content = list(content)
         num_lines = len(content)
-        content = content[skip_header: num_lines-skip_footer]
-        logging.debug("There are %d lines in the input file %s:" % (
-            num_lines, input_file
-        ))
+        content = content[skip_header : num_lines - skip_footer]
+        logging.debug(
+            "There are %d lines in the input file %s:" % (num_lines, input_file)
+        )
         if skip_header > 0 or skip_footer > 0:
-            logging.debug("Skipping %d header and %d footer lines" % (
-                skip_header, skip_footer
-            ))
+            logging.debug(
+                "Skipping %d header and %d footer lines" % (skip_header, skip_footer)
+            )
         for row in content:
-            logging.debug(' ||| '.join(row))
+            logging.debug(" ||| ".join(row))
     return content
 
 
 def load_config(config_file):
     config = []
     supported_output_formats = (
-        "Integer", "Decimal", "Time", "Text", "Date (DD/MM/YYYY to YYYYMMDD)"
+        "Integer",
+        "Decimal",
+        "Time",
+        "Text",
+        "Date (DD/MM/YYYY to YYYYMMDD)",
     )
     supported_skip_field = ("True", "False", "", None)
     logging.debug("Loading configuration %s" % config_file)
@@ -221,9 +222,8 @@ def load_config(config_file):
                 if config[idx_row]["length"] < 0:
                     logging.critical(
                         "Invalid value '%s' for the 'Length' column on row "
-                        "%d, must be a positive number. Exiting..." % (
-                            cell.value, idx_row+2
-                        )
+                        "%d, must be a positive number. Exiting..."
+                        % (cell.value, idx_row + 2)
                     )
                     sys.exit(14)
             if idx_col == output_format_col:
@@ -232,20 +232,22 @@ def load_config(config_file):
                 else:
                     logging.critical(
                         "Invalid output format '%s' on row %d, must be one  "
-                        "of '%s'. Exiting..." % (
-                            cell.value, idx_row+2,
-                            "', '".join(supported_output_formats)
+                        "of '%s'. Exiting..."
+                        % (
+                            cell.value,
+                            idx_row + 2,
+                            "', '".join(supported_output_formats),
                         )
                     )
                     sys.exit(15)
             if idx_col == skip_field_col:
                 if cell.value in supported_skip_field:
-                    config[idx_row]["skip_field"] = ("True" == cell.value)
+                    config[idx_row]["skip_field"] = "True" == cell.value
                 else:
                     logging.critical(
                         "Invalid value '%s' for the 'Skip field' column on "
                         "row %d, must be one  of 'True', 'False' or empty. "
-                        "Exiting..." % (cell.value, idx_row+2)
+                        "Exiting..." % (cell.value, idx_row + 2)
                     )
                     sys.exit(16)
 
@@ -257,7 +259,7 @@ def load_config(config_file):
 def get_version(rel_path):
     with open(rel_path) as f:
         for line in f.read().splitlines():
-            if line.startswith('__version__'):
+            if line.startswith("__version__"):
                 return line.split('"')[1]
         else:
             raise RuntimeError("Unable to find version string.")
@@ -268,108 +270,107 @@ def validate_shared_args(args):
         logging.critical("The specified input file does not exist. Exiting...")
         sys.exit(10)
     if not os.path.isfile(args.config):
-        logging.critical(
-            "The specified configuration file does not exist. Exiting..."
-        )
+        logging.critical("The specified configuration file does not exist. Exiting...")
         sys.exit(12)
     if args.skip_header != 0:
         try:
             args.skip_header = int(args.skip_header)
         except ValueError:
-            logging.critical(
-                "The `--skip-header` argument must be numeric. Exiting..."
-            )
+            logging.critical("The `--skip-header` argument must be numeric. Exiting...")
             sys.exit(21)
     if args.skip_footer != 0:
         try:
             args.skip_footer = int(args.skip_footer)
         except ValueError:
-            logging.critical(
-                "The `--skip-footer` argument must be numeric. Exiting..."
-            )
+            logging.critical("The `--skip-footer` argument must be numeric. Exiting...")
             sys.exit(22)
 
 
 def add_shared_args(parser):
     parser.add_argument(
-        "-i", "--input",
-        help="Specify the input file",
-        action='store',
-        required=True
+        "-i", "--input", help="Specify the input file", action="store", required=True
     )
     parser.add_argument(
-        "-c", "--config",
+        "-c",
+        "--config",
         help="Specify the configuration file",
-        action='store',
-        required=True
+        action="store",
+        required=True,
     )
     parser.add_argument(
-        "-dl", "--delimiter",
+        "-dl",
+        "--delimiter",
         help="The field delimiter used in the input file (default ,)",
-        action='store',
+        action="store",
         required=False,
-        default=","
+        default=",",
     )
     parser.add_argument(
-        "-q", "--quotechar",
-        help='The character used to wrap textual fields in the input file '
-             '(default ")',
-        action='store',
+        "-q",
+        "--quotechar",
+        help="The character used to wrap textual fields in the input file "
+        '(default ")',
+        action="store",
         required=False,
-        default='"'
+        default='"',
     )
     parser.add_argument(
-        "-sh", "--skip-header",
+        "-sh",
+        "--skip-header",
         help="The number of header lines to skip (default 0)",
-        action='store',
+        action="store",
         required=False,
-        default=0
+        default=0,
     )
     parser.add_argument(
-        "-sf", "--skip-footer",
+        "-sf",
+        "--skip-footer",
         help="The number of footer lines to skip (default 0)",
-        action='store',
+        action="store",
         required=False,
-        default=0
+        default=0,
     )
 
 
 def parse_args(arguments):
     parser = argparse.ArgumentParser(
-        description="Convert files from delimited (e.g. CSV) to fixed width "
-                    "format"
+        description="Convert files from delimited (e.g. CSV) to fixed width " "format"
     )
     parser.add_argument(
-        '--version',
-        action='version',
-        version='%s %s' % ("%(prog)s", get_version("__init__.py"))
+        "--version",
+        action="version",
+        version="%s %s" % ("%(prog)s", get_version("__init__.py")),
     )
 
     parser.add_argument(
-        "-o", "--output",
-        help="Specify the output file",
-        action='store',
-        required=True
+        "-o", "--output", help="Specify the output file", action="store", required=True
     )
     parser.add_argument(
-        "-x", "--overwrite-file",
+        "-x",
+        "--overwrite-file",
         help="Allow to overwrite the output file",
-        action='store_true',
-        required=False
+        action="store_true",
+        required=False,
     )
 
     add_shared_args(parser)
 
     parser.add_argument(
-        '-d', '--debug',
+        "-d",
+        "--debug",
         help="Print lots of debugging statements",
-        action="store_const", dest="loglevel", const=logging.DEBUG,
+        action="store_const",
+        dest="loglevel",
+        const=logging.DEBUG,
         default=logging.WARNING,
     )
     parser.add_argument(
-        '-v', '--verbose',
+        "-v",
+        "--verbose",
         help="Be verbose",
-        action="store_const", dest="loglevel", const=logging.INFO,
+        action="store_const",
+        dest="loglevel",
+        const=logging.INFO,
     )
     args = parser.parse_args(arguments)
 
@@ -392,15 +393,25 @@ def parse_args(arguments):
     return args
 
 
-def process(input, output, config, delimiter, quotechar, skip_header,
-            skip_footer, date_field_to_report_on=None):
+def process(
+    input,
+    output,
+    config,
+    delimiter,
+    quotechar,
+    skip_header,
+    skip_footer,
+    date_field_to_report_on=None,
+):
     config = load_config(config)
 
-    input_content = read_input_file(input, delimiter, quotechar, skip_header,
-                                    skip_footer)
+    input_content = read_input_file(
+        input, delimiter, quotechar, skip_header, skip_footer
+    )
 
     (output_content, oldest_date, most_recent_date) = convert_content(
-        input_content, config, date_field_to_report_on)
+        input_content, config, date_field_to_report_on
+    )
 
     write_output_file(output_content, output)
 
@@ -412,8 +423,15 @@ def init():
         # Parse the provided command-line arguments
         args = parse_args(sys.argv[1:])
 
-        process(args.input, args.output, args.config, args.delimiter,
-                args.quotechar, args.skip_header, args.skip_footer)
+        process(
+            args.input,
+            args.output,
+            args.config,
+            args.delimiter,
+            args.quotechar,
+            args.skip_header,
+            args.skip_footer,
+        )
 
 
 init()
