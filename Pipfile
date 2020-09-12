@@ -10,6 +10,7 @@ pyinstaller = "*"
 flake8 = "*"
 flake8-bugbear = "*"
 black = "==20.8b1"
+isort = "*"
 
 [packages]
 openpyxl = "*"

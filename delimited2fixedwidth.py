@@ -3,14 +3,15 @@
 
 #    This file is part of delimited2fixedwidth and is MIT-licensed.
 
-import sys
 import argparse
+import csv
+import datetime
 import logging
 import os
-import csv
-from openpyxl import load_workbook
 import re
-import datetime
+import sys
+
+from openpyxl import load_workbook
 
 
 def write_output_file(output_content, output_file):
