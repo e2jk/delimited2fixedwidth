@@ -17,6 +17,7 @@ def write_output_file(output_content, output_file):
     with open(output_file, "w") as ofile:
         ofile.write('\n'.join(output_content))
 
+
 def pad_output_value(val, output_format, length):
     if output_format in ("Integer", "Decimal"):
         # Numbers get padded with 0's added in front (to the left)
@@ -26,6 +27,7 @@ def pad_output_value(val, output_format, length):
         format_template = "{:<%d}" % length
         val = format_template.format(val)
     return val
+
 
 def convert_cell(value, output_format, idx_col, idx_row):
     converted_value = ""
@@ -91,6 +93,7 @@ def convert_cell(value, output_format, idx_col, idx_row):
         converted_value = value
     return converted_value
 
+
 def convert_content(input_content, config, date_field_to_report_on=None):
     output_content = []
     if date_field_to_report_on:
@@ -151,6 +154,7 @@ def convert_content(input_content, config, date_field_to_report_on=None):
     logging.debug("The output content:\n%s" % '\n'.join(output_content))
     return (output_content, oldest_date, most_recent_date)
 
+
 def read_input_file(input_file, delimiter, quotechar, skip_header, skip_footer):
     content = None
     with open(input_file, newline='') as csvfile:
@@ -169,6 +173,7 @@ def read_input_file(input_file, delimiter, quotechar, skip_header, skip_footer):
         for row in content:
             logging.debug(' ||| '.join(row))
     return content
+
 
 def load_config(config_file):
     config = []
@@ -247,6 +252,7 @@ def load_config(config_file):
     logging.debug(config)
     return config
 
+
 def get_version(rel_path):
     with open(rel_path) as f:
         for line in f.read().splitlines():
@@ -254,6 +260,7 @@ def get_version(rel_path):
                 return line.split('"')[1]
         else:
             raise RuntimeError("Unable to find version string.")
+
 
 def validate_shared_args(args):
     if not os.path.isfile(args.input):
@@ -280,6 +287,7 @@ def validate_shared_args(args):
                 "The `--skip-footer` argument must be numeric. Exiting..."
             )
             sys.exit(22)
+
 
 def add_shared_args(parser):
     parser.add_argument(
@@ -322,6 +330,7 @@ def add_shared_args(parser):
         required=False,
         default=0
     )
+
 
 def parse_args(arguments):
     parser = argparse.ArgumentParser(
@@ -380,6 +389,7 @@ def parse_args(arguments):
     logging.debug("These are the parsed arguments:\n'%s'" % args)
     return args
 
+
 def process(input, output, config, delimiter, quotechar, skip_header,
             skip_footer, date_field_to_report_on=None):
     config = load_config(config)
@@ -393,6 +403,7 @@ def process(input, output, config, delimiter, quotechar, skip_header,
     write_output_file(output_content, output)
 
     return (len(input_content), oldest_date, most_recent_date)
+
 
 def init():
     if __name__ == "__main__":
