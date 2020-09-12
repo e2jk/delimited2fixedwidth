@@ -186,7 +186,7 @@ def load_config(config_file):
 
     # Open the configuration file (an Excel .xlsx file)
     wk = load_workbook(filename=config_file)
-    ws = wk.active # Get active worksheet or wk['some_worksheet']
+    ws = wk.active  # Get active worksheet or wk['some_worksheet']
 
     # Analyze the header to identify the relevant columns
     length_col = -1
