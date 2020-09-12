@@ -415,4 +415,5 @@ def init():
         process(args.input, args.output, args.config, args.delimiter,
                 args.quotechar, args.skip_header, args.skip_footer)
 
+
 init()
