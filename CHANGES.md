@@ -4,10 +4,10 @@ These are the changes brought in each versions:
 v1.0.3 (TBD)
 ===================
 
-Non-breaking changes:
----------------------
+Other changes:
+--------------
 
-*
+* Changes to the development toolchain and test suite
 
 v1.0.2 (2020-09-07)
 ===================

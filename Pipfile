@@ -1,0 +1,18 @@
+[[source]]
+name = "pypi"
+url = "https://pypi.org/simple"
+verify_ssl = true
+
+[dev-packages]
+coverage = "*"
+codecov = "*"
+pyinstaller = "*"
+flake8 = "*"
+flake8-bugbear = "*"
+black = "==20.8b1"
+
+[packages]
+openpyxl = "*"
+
+[requires]
+python_version = "3.8"
