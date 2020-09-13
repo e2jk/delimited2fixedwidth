@@ -6,7 +6,7 @@ dist: focal
 # Command to install Python dependencies
 install:
   - pip install pipenv
-  - pipenv install --dev
+  - pipenv install --dev --verbose
 # Command to run tests
 script:
   - ./test.sh
