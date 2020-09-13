@@ -8,13 +8,13 @@
 #   rm -rf html_dev/coverage && coverage html --directory=html_dev/coverage \
 #   --title="Code test coverage for delimited2fixedwidth"
 
-import unittest
-import sys
-import os
-import io
 import contextlib
+import io
 import logging
+import os
+import sys
 import tempfile
+import unittest
 
 CURRENT_VERSION = "1.0.3-dev"
 
