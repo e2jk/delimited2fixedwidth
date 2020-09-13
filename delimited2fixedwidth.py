@@ -231,8 +231,8 @@ def load_config(config_file):
                     config[idx_row]["output_format"] = cell.value
                 else:
                     logging.critical(
-                        "Invalid output format '%s' on row %d, must be one  "
-                        "of '%s'. Exiting..."
+                        "Invalid output format '%s' on row %d, must be one of '%s'. "
+                        "Exiting..."
                         % (
                             cell.value,
                             idx_row + 2,

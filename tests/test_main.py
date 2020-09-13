@@ -113,7 +113,7 @@ class TestLoadConfig(unittest.TestCase):
             cm2.output,
             [
                 "CRITICAL:root:Invalid output format 'INVALID OUTPUT FORMAT' on "
-                "row 9, must be one  of 'Integer', 'Decimal', 'Time', 'Text', "
+                "row 9, must be one of 'Integer', 'Decimal', 'Time', 'Text', "
                 "'Date (DD/MM/YYYY to YYYYMMDD)'. Exiting..."
             ],
         )
