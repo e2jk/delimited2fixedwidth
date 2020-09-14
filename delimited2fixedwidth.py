@@ -182,6 +182,7 @@ def load_config(config_file):
         "Time",
         "Text",
         "Date (DD/MM/YYYY to YYYYMMDD)",
+        "Date (MM/DD/YYYY to YYYYMMDD)",
     )
     supported_skip_field = ("True", "False", "", None)
     logging.debug("Loading configuration %s" % config_file)

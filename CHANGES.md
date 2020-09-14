@@ -4,6 +4,12 @@ These are the changes brought in each versions:
 v1.0.3 (TBD)
 ===================
 
+
+Non-breaking changes:
+---------------------
+
+* Fix handling of the "Date (MM/DD/YYYY to YYYYMMDD)" date format
+
 Other changes:
 --------------
 

@@ -114,7 +114,8 @@ class TestLoadConfig(unittest.TestCase):
             [
                 "CRITICAL:root:Invalid output format 'INVALID OUTPUT FORMAT' on "
                 "row 9, must be one of 'Integer', 'Decimal', 'Time', 'Text', "
-                "'Date (DD/MM/YYYY to YYYYMMDD)'. Exiting..."
+                "'Date (DD/MM/YYYY to YYYYMMDD)', 'Date (MM/DD/YYYY to YYYYMMDD)'. "
+                "Exiting..."
             ],
         )
 
@@ -897,6 +898,57 @@ class TestProcess(unittest.TestCase):
         input = "tests/sample_files/input1.txt"
         output = output_file
         config = "tests/sample_files/configuration1.xlsx"
+        delimiter = "^"
+        quotechar = '"'
+        skip_header = 1
+        skip_footer = 1
+        date_field_to_report_on = 5
+        (num_input_rows, oldest_date, most_recent_date) = target.process(
+            input,
+            output,
+            config,
+            delimiter,
+            quotechar,
+            skip_header,
+            skip_footer,
+            date_field_to_report_on,
+        )
+        # Confirm the output file has been written and its content
+        self.assertTrue(os.path.isfile(output_file))
+        with open(output_file) as f:
+            s = f.read()
+            expected_output = (
+                "0004000133034205413540000100202007312006"
+                "                                        "
+                "Leendert MOLENDIJK [90038979]           \n"
+                "0004000133034005407940000157202003051022"
+                "                                        "
+                "Leendert MOLENDIJK [90038979]           \n"
+                "0004000133034105409340022139202012252006"
+                "                                        "
+                "Leendert MOLENDIJK [90038979]           "
+            )
+            self.assertEqual(expected_output, s)
+        # Remove the output file
+        os.remove(output_file)
+        self.assertFalse(os.path.isfile(output_file))
+        self.assertEqual(num_input_rows, 3)
+        self.assertEqual(oldest_date, "20200305")
+        self.assertEqual(most_recent_date, "20201225")
+
+    def test_process_valid_MMDDYYYY(self):
+        """
+        Test the full process with valid arguments parameters with
+        american-formatted date format
+        """
+        output_file = "tests/sample_files/nonexistent_test_output.txt"
+        # Confirm the output file doesn't exist
+        if os.path.isfile(output_file):
+            os.remove(output_file)
+            self.assertFalse(os.path.isfile(output_file))
+        input = "tests/sample_files/input1 - MMDDYYYY.txt"
+        output = output_file
+        config = "tests/sample_files/configuration1 - MMDDYYYY.xlsx"
         delimiter = "^"
         quotechar = '"'
         skip_header = 1
