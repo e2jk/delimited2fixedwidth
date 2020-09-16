@@ -1,0 +1,4 @@
+-i https://pypi.org/simple
+et-xmlfile==1.0.1
+jdcal==1.4.1
+openpyxl==3.0.5
