@@ -16,7 +16,7 @@ import sys
 import tempfile
 import unittest
 
-CURRENT_VERSION = "1.0.4-dev"
+CURRENT_VERSION = "1.0.4"
 
 sys.path.append(".")
 target = __import__("delimited2fixedwidth")

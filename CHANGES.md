@@ -1,11 +1,12 @@
 # Changelog
 These are the changes brought in each versions:
 
-v1.0.4 (TBD)
+v1.0.4 (2020-09-16)
 ===================
 Other changes:
 --------------
 * Reduce the number of dependencies
+  * Exclude the development-specific dependencies in the PyPI package
 
 v1.0.3 (2020-09-14)
 ===================
