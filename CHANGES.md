@@ -1,6 +1,11 @@
 # Changelog
 These are the changes brought in each versions:
 
+v1.0.6 (TBD)
+===================
+Non-breaking changes:
+*
+
 v1.0.5 (2020-09-16)
 ===================
 Non-breaking changes:
