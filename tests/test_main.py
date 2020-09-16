@@ -1073,9 +1073,9 @@ class TestProcess(unittest.TestCase):
         if os.path.isfile(output_file):
             os.remove(output_file)
             self.assertFalse(os.path.isfile(output_file))
-        input = "tests/sample_files/input1 - MMDDYYYY.txt"
+        input = "tests/sample_files/input1_dates.txt"
         output = output_file
-        config = "tests/sample_files/configuration1 - MMDDYYYY.xlsx"
+        config = "tests/sample_files/configuration1_dates.xlsx"
         delimiter = "^"
         quotechar = '"'
         skip_header = 1
@@ -1098,13 +1098,16 @@ class TestProcess(unittest.TestCase):
             expected_output = (
                 "0004000133034205413540000100202007312006"
                 "                                        "
-                "Leendert MOLENDIJK [90038979]           \n"
+                "Leendert MOLENDIJK [90038979]           0020121231"
+                "19621030   20010322\n"
                 "0004000133034005407940000157202003051022"
                 "                                        "
-                "Leendert MOLENDIJK [90038979]           \n"
+                "Leendert MOLENDIJK [90038979]           0019870201"
+                "19551106   19471115\n"
                 "0004000133034105409340022139202012252006"
                 "                                        "
-                "Leendert MOLENDIJK [90038979]           "
+                "Leendert MOLENDIJK [90038979]           0019990722"
+                "20050103   20000131"
             )
             self.assertEqual(expected_output, s)
         # Remove the output file
