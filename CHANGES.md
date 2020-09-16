@@ -5,6 +5,13 @@ v1.0.5 (TBD)
 ===================
 Non-breaking changes:
 ---------------------
+* Support for new date formats:
+  * `Date (DD-MM-YYYY to YYYYMMDD)`
+  * `Date (MM-DD-YYYY to YYYYMMDD)`
+  * `Date (DD.MM.YYYY to YYYYMMDD)`
+  * `Date (MM.DD.YYYY to YYYYMMDD)`
+  * `Date (DDMMYYYY to YYYYMMDD)`
+  * `Date (MMDDYYYY to YYYYMMDD)`
 
 v1.0.4 (2020-09-16)
 ===================

@@ -30,6 +30,51 @@ def pad_output_value(val, output_format, length):
     return val
 
 
+def convert_date(value, output_format, idx_col, idx_row):
+    converted_value = ""
+    delim = output_format[8]
+    if delim not in ("/", "-", "."):
+        delim = ""
+    if delim == "" and len(value) != 8:
+        logging.critical(
+            "Invalid date value '%s' for format '%s' in field %d on row %d "
+            "(ignoring the header), day and month must contain leading 0's. Exiting..."
+            % (value, output_format, idx_col, idx_row)
+        )
+        sys.exit(24)
+    if output_format.startswith("Date (DD"):
+        m = re.match(
+            r"([0123]?\d){delim}([01]?\d){delim}(\d{{4}})".format(delim=delim), value
+        )
+    elif output_format.startswith("Date (MM"):
+        m = re.match(
+            r"([01]?\d){delim}([0123]?\d){delim}(\d{{4}})".format(delim=delim), value
+        )
+    if m:
+        if output_format.startswith("Date (DD"):
+            year = m.group(3)
+            month = m.group(2).zfill(2)
+            day = m.group(1).zfill(2)
+        elif output_format.startswith("Date (MM"):
+            year = m.group(3)
+            month = m.group(1).zfill(2)
+            day = m.group(2).zfill(2)
+        converted_value = "%s%s%s" % (year, month, day)
+        # Is it a valid date?
+        try:
+            datetime.datetime.strptime(converted_value, "%Y%m%d")
+        except ValueError:
+            converted_value = ""
+    if not converted_value:
+        logging.critical(
+            "Invalid date value '%s' for format '%s' in field %d on row %d "
+            "(ignoring the header). Exiting..."
+            % (value, output_format, idx_col, idx_row)
+        )
+        sys.exit(18)
+    return converted_value
+
+
 def convert_cell(value, output_format, idx_col, idx_row):
     converted_value = ""
     if "Time" == output_format:
@@ -42,36 +87,8 @@ def convert_cell(value, output_format, idx_col, idx_row):
                 "Exiting..." % (value, idx_col, idx_row)
             )
             sys.exit(17)
-    elif output_format in (
-        "Date (DD/MM/YYYY to YYYYMMDD)",
-        "Date (MM/DD/YYYY to YYYYMMDD)",
-    ):
-        if "Date (DD/MM/YYYY to YYYYMMDD)" == output_format:
-            m = re.match(r"([0123]?\d)/([01]?\d)/(\d{4})", value)
-            if m:
-                year = m.group(3)
-                month = m.group(2).zfill(2)
-                day = m.group(1).zfill(2)
-        elif "Date (MM/DD/YYYY to YYYYMMDD)" == output_format:
-            m = re.match(r"([01]?\d)/([0123]?\d)/(\d{4})", value)
-            if m:
-                year = m.group(3)
-                month = m.group(1).zfill(2)
-                day = m.group(2).zfill(2)
-        if m:
-            converted_value = "%s%s%s" % (year, month, day)
-            # Is it a valid date?
-            try:
-                datetime.datetime.strptime(converted_value, "%Y%m%d")
-            except ValueError:
-                converted_value = ""
-        if not converted_value:
-            logging.critical(
-                "Invalid date value '%s' for format '%s' in field %d on row %d "
-                "(ignoring the header). Exiting..."
-                % (value, output_format, idx_col, idx_row)
-            )
-            sys.exit(18)
+    elif output_format.startswith("Date ("):
+        converted_value = convert_date(value, output_format, idx_col, idx_row)
     elif "Decimal" == output_format:
         # Decimal numbers must be sent with 2 decimal places and
         # *without* the decimal separator
@@ -182,7 +199,13 @@ def load_config(config_file):
         "Time",
         "Text",
         "Date (DD/MM/YYYY to YYYYMMDD)",
+        "Date (DD-MM-YYYY to YYYYMMDD)",
+        "Date (DD.MM.YYYY to YYYYMMDD)",
+        "Date (DDMMYYYY to YYYYMMDD)",
         "Date (MM/DD/YYYY to YYYYMMDD)",
+        "Date (MM-DD-YYYY to YYYYMMDD)",
+        "Date (MM.DD.YYYY to YYYYMMDD)",
+        "Date (MMDDYYYY to YYYYMMDD)",
     )
     supported_skip_field = ("True", "False", "", None)
     logging.debug("Loading configuration %s" % config_file)

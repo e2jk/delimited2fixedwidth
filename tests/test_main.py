@@ -114,7 +114,10 @@ class TestLoadConfig(unittest.TestCase):
             [
                 "CRITICAL:root:Invalid output format 'INVALID OUTPUT FORMAT' on "
                 "row 9, must be one of 'Integer', 'Decimal', 'Time', 'Text', "
-                "'Date (DD/MM/YYYY to YYYYMMDD)', 'Date (MM/DD/YYYY to YYYYMMDD)'. "
+                "'Date (DD/MM/YYYY to YYYYMMDD)', 'Date (DD-MM-YYYY to YYYYMMDD)', "
+                "'Date (DD.MM.YYYY to YYYYMMDD)', 'Date (DDMMYYYY to YYYYMMDD)', "
+                "'Date (MM/DD/YYYY to YYYYMMDD)', 'Date (MM-DD-YYYY to YYYYMMDD)', "
+                "'Date (MM.DD.YYYY to YYYYMMDD)', 'Date (MMDDYYYY to YYYYMMDD)'. "
                 "Exiting..."
             ],
         )
@@ -424,12 +427,60 @@ class TestConvertCell(unittest.TestCase):
         output_value = target.convert_cell(date, "Date (DD/MM/YYYY to YYYYMMDD)", 2, 3)
         self.assertEqual(output_value, "19811103")
 
+    def test_convert_cell_date_ddmmyyyy_dashes(self):
+        """
+        Test converting a valid date value with format DD-MM-YYYY
+        """
+        date = "03-11-1981"
+        output_value = target.convert_cell(date, "Date (DD-MM-YYYY to YYYYMMDD)", 2, 3)
+        self.assertEqual(output_value, "19811103")
+
+    def test_convert_cell_date_ddmmyyyy_dots(self):
+        """
+        Test converting a valid date value with format DD.MM.YYYY
+        """
+        date = "03.11.1981"
+        output_value = target.convert_cell(date, "Date (DD.MM.YYYY to YYYYMMDD)", 2, 3)
+        self.assertEqual(output_value, "19811103")
+
+    def test_convert_cell_date_ddmmyyyy_no_delimiter(self):
+        """
+        Test converting a valid date value with format DDMMYYYY
+        """
+        date = "03111981"
+        output_value = target.convert_cell(date, "Date (DDMMYYYY to YYYYMMDD)", 2, 3)
+        self.assertEqual(output_value, "19811103")
+
     def test_convert_cell_date_mmddyyyy_slashes(self):
         """
         Test converting a valid date value with format MM/DD/YYYY
         """
         date = "11/03/1981"
         output_value = target.convert_cell(date, "Date (MM/DD/YYYY to YYYYMMDD)", 2, 3)
+        self.assertEqual(output_value, "19811103")
+
+    def test_convert_cell_date_mmddyyyy_dashes(self):
+        """
+        Test converting a valid date value with format MM-DD-YYYY
+        """
+        date = "11-03-1981"
+        output_value = target.convert_cell(date, "Date (MM-DD-YYYY to YYYYMMDD)", 2, 3)
+        self.assertEqual(output_value, "19811103")
+
+    def test_convert_cell_date_mmddyyyy_dots(self):
+        """
+        Test converting a valid date value with format MM.DD.YYYY
+        """
+        date = "11.03.1981"
+        output_value = target.convert_cell(date, "Date (MM.DD.YYYY to YYYYMMDD)", 2, 3)
+        self.assertEqual(output_value, "19811103")
+
+    def test_convert_cell_date_mmddyyyy_no_delimiter(self):
+        """
+        Test converting a valid date value with format MMDDYYYY
+        """
+        date = "11031981"
+        output_value = target.convert_cell(date, "Date (MMDDYYYY to YYYYMMDD)", 2, 3)
         self.assertEqual(output_value, "19811103")
 
     def test_convert_cell_date_ddmmyyyy_slashes_short(self):
@@ -441,6 +492,44 @@ class TestConvertCell(unittest.TestCase):
         output_value = target.convert_cell(date, "Date (DD/MM/YYYY to YYYYMMDD)", 2, 3)
         self.assertEqual(output_value, "19810103")
 
+    def test_convert_cell_date_ddmmyyyy_dashes_short(self):
+        """
+        Test converting a valid date value with format DD-MM-YYYY, with
+        single-digit day and month
+        """
+        date = "3-1-1981"
+        output_value = target.convert_cell(date, "Date (DD-MM-YYYY to YYYYMMDD)", 2, 3)
+        self.assertEqual(output_value, "19810103")
+
+    def test_convert_cell_date_ddmmyyyy_dots_short(self):
+        """
+        Test converting a valid date value with format DD.MM.YYYY, with
+        single-digit day and month
+        """
+        date = "3.1.1981"
+        output_value = target.convert_cell(date, "Date (DD.MM.YYYY to YYYYMMDD)", 2, 3)
+        self.assertEqual(output_value, "19810103")
+
+    def test_convert_cell_date_ddmmyyyy_no_delimiter_short_invalid(self):
+        """
+        Test converting a valid date value with format DD/MM/YYYY, with
+        single-digit day and month
+        """
+        date = "311981"
+        with self.assertRaises(SystemExit) as cm1, self.assertLogs(
+            level="CRITICAL"
+        ) as cm2:
+            target.convert_cell(date, "Date (DDMMYYYY to YYYYMMDD)", 2, 3)
+        self.assertEqual(cm1.exception.code, 24)
+        self.assertEqual(
+            cm2.output,
+            [
+                "CRITICAL:root:Invalid date value '311981' for format 'Date "
+                "(DDMMYYYY to YYYYMMDD)' in field 2 on row 3 (ignoring the "
+                "header), day and month must contain leading 0's. Exiting..."
+            ],
+        )
+
     def test_convert_cell_date_mmddyyyy_slashes_short(self):
         """
         Test converting a valid date value with format MM/DD/YYYY, with
@@ -449,6 +538,44 @@ class TestConvertCell(unittest.TestCase):
         date = "1/3/1981"
         output_value = target.convert_cell(date, "Date (MM/DD/YYYY to YYYYMMDD)", 2, 3)
         self.assertEqual(output_value, "19810103")
+
+    def test_convert_cell_date_mmddyyyy_dashes_short(self):
+        """
+        Test converting a valid date value with format MM-DD-YYYY, with
+        single-digit day and month
+        """
+        date = "1-3-1981"
+        output_value = target.convert_cell(date, "Date (MM-DD-YYYY to YYYYMMDD)", 2, 3)
+        self.assertEqual(output_value, "19810103")
+
+    def test_convert_cell_date_mmddyyyy_dots_short(self):
+        """
+        Test converting a valid date value with format MM.DD.YYYY, with
+        single-digit day and month
+        """
+        date = "1.3.1981"
+        output_value = target.convert_cell(date, "Date (MM.DD.YYYY to YYYYMMDD)", 2, 3)
+        self.assertEqual(output_value, "19810103")
+
+    def test_convert_cell_date_mmddyyyy_no_delimiter_short_invalid(self):
+        """
+        Test converting a valid date value with format MMDDYYYY, with
+        single-digit day and month
+        """
+        date = "131981"
+        with self.assertRaises(SystemExit) as cm1, self.assertLogs(
+            level="CRITICAL"
+        ) as cm2:
+            target.convert_cell(date, "Date (MMDDYYYY to YYYYMMDD)", 2, 3)
+        self.assertEqual(cm1.exception.code, 24)
+        self.assertEqual(
+            cm2.output,
+            [
+                "CRITICAL:root:Invalid date value '131981' for format 'Date "
+                "(MMDDYYYY to YYYYMMDD)' in field 2 on row 3 (ignoring the "
+                "header), day and month must contain leading 0's. Exiting..."
+            ],
+        )
 
     def test_convert_cell_date_ddmmyyyy_slashes_invalid_date(self):
         """
