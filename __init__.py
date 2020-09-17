@@ -6,4 +6,4 @@ from .delimited2fixedwidth import process
 from .delimited2fixedwidth import add_shared_args
 from .delimited2fixedwidth import validate_shared_args
 
-__version__ = "1.0.6"
+__version__ = "1.0.7-dev"

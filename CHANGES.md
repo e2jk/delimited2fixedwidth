@@ -1,9 +1,16 @@
 # Changelog
 These are the changes brought in each versions:
 
+v1.0.7 (TBD)
+===================
+Non-breaking changes:
+---------------------
+*
+
 v1.0.6 (2020-09-17)
 ===================
 Non-breaking changes:
+---------------------
 * New `--truncate` argument to specify which fields can be cut when the input value is longer than the defined maximum field length
 * New `--locale` argument, in case a different Decimal separator is used
 * Fix: Spaces or empty string accepted as valid Integer and Decimal values (interpreted as 0)
