@@ -112,6 +112,11 @@ optional arguments:
                         The number of footer lines to skip (default 0)
   -l LOCALE, --locale LOCALE
                         Change the locale, useful to handle decimal separators
+  -t TRUNCATE, --truncate TRUNCATE
+                        Comma-delimited list of field numbers for which the output will be truncated
+                        at the maximum line length, should the input value be longer than the maximum
+                        defined field length. If not set, a field that is too long will cause the
+                        script to stop with an error.
   -d, --debug           Print lots of debugging statements
   -v, --verbose         Be verbose
 ```

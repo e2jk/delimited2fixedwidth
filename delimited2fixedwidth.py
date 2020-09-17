@@ -118,7 +118,7 @@ def convert_cell(value, output_format, idx_col, idx_row):
     return converted_value
 
 
-def convert_content(input_content, config, date_field_to_report_on=None):
+def convert_content(input_content, config, date_field_to_report_on=None, truncate=None):
     output_content = []
     if date_field_to_report_on:
         # Argument is 1-based
@@ -149,12 +149,25 @@ def convert_content(input_content, config, date_field_to_report_on=None):
             # Confirm that the length of the field (before padding) is less
             # than the maximum allowed length
             if len(cell) > config[idx_col]["length"]:
-                logging.critical(
-                    "Field %d on row %d (ignoring the header) is too long! Length: %d, "
-                    "max length %d. Exiting..."
-                    % (idx_col + 1, idx_row + 1, len(cell), config[idx_col]["length"])
-                )
-                sys.exit(20)
+                if not truncate or idx_col + 1 not in truncate:
+                    logging.critical(
+                        "Field %d on row %d (ignoring the header) is too long! Length: "
+                        "%d, max length %d. Exiting..." % (
+                            idx_col + 1, idx_row + 1, len(cell),
+                            config[idx_col]["length"]
+                        )
+                    )
+                    sys.exit(20)
+                else:
+                    # Truncate to the defined maximum field length
+                    logging.info(
+                        "Field %d on row %d (ignoring the header) is too long! Length: "
+                        "%d, max length %d. Truncating field to its max length." % (
+                            idx_col + 1, idx_row + 1, len(cell),
+                            config[idx_col]["length"]
+                        )
+                    )
+                    cell = cell[:config[idx_col]["length"]]
 
             padded_output_value = pad_output_value(cell, output_format, length)
             converted_row_content.append(padded_output_value)
@@ -314,6 +327,18 @@ def validate_shared_args(args):
         except ValueError:
             logging.critical("The `--skip-footer` argument must be numeric. Exiting...")
             sys.exit(22)
+    if args.truncate:
+        truncate = []
+        for t in args.truncate.split(","):
+            try:
+                truncate.append(int(t))
+            except ValueError:
+                logging.critical(
+                    "The `--truncate` argument must be a comma-delimited list of "
+                    "numbers. Exiting..."
+                )
+                sys.exit(25)
+        args.truncate = truncate
 
 
 def add_shared_args(parser):
@@ -366,6 +391,17 @@ def add_shared_args(parser):
         action="store",
         required=False,
         default='',
+    )
+    parser.add_argument(
+        "-t",
+        "--truncate",
+        help="Comma-delimited list of field numbers for which the output will be "
+        "truncated at the maximum line length, should the input value be longer than "
+        "the maximum defined field length. If not set, a field that is too long will "
+        "cause the script to stop with an error.",
+        action="store",
+        required=False,
+        default=[],
     )
 
 
@@ -438,7 +474,8 @@ def process(
     skip_header,
     skip_footer,
     date_field_to_report_on=None,
-    locale=''
+    locale='',
+    truncate=None,
 ):
     # By default, set to the user's default locale, used to appropriately handle
     # Decimal separators
@@ -446,12 +483,22 @@ def process(
 
     config = load_config(config)
 
+    if truncate:
+        for t in truncate:
+            if t > len(config):
+                logging.critical(
+                    "The value %d passed in the `--truncate` argument is invalid, it "
+                    "is higher than the %d fields defined in the configuration file. "
+                    "Exiting..." % (t, len(config))
+                )
+                sys.exit(26)
+
     input_content = read_input_file(
         input, delimiter, quotechar, skip_header, skip_footer
     )
 
     (output_content, oldest_date, most_recent_date) = convert_content(
-        input_content, config, date_field_to_report_on
+        input_content, config, date_field_to_report_on, truncate
     )
 
     write_output_file(output_content, output)
@@ -474,6 +521,7 @@ def init():
             args.skip_footer,
             None,
             args.locale,
+            args.truncate,
         )
 
 

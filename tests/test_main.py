@@ -271,6 +271,33 @@ class TestConvertContent(unittest.TestCase):
             ],
         )
 
+    def test_convert_content_field_too_long_truncate(self):
+        """
+        Test converting full content with one field that's too long
+        """
+        input_content = [
+            ["2247", "Short text", "not important", "29/11/2020"],
+            ["01:42", "This text is too long", "blabla", "20/6/2020"],
+        ]
+        config = [
+            {"length": 4, "output_format": "Time", "skip_field": False},
+            {"length": 20, "output_format": "Text", "skip_field": False},
+            {"length": 0, "output_format": "Text", "skip_field": True},
+            {
+                "length": 8,
+                "output_format": "Date (DD/MM/YYYY to YYYYMMDD)",
+                "skip_field": False,
+            },
+        ]
+        (output_content, ignore1, ignore2) = target.convert_content(
+            input_content, config, None, [2, 3]
+        )
+        expected_output = [
+            "2247Short text          20201129",
+            "0142This text is too lon20200620",
+        ]
+        self.assertEqual(output_content, expected_output)
+
     def test_convert_content_too_many_input_fields(self):
         """
         Test converting full content where the input data has more fields than
@@ -923,7 +950,7 @@ class TestParseArgs(unittest.TestCase):
                 "input='tests/sample_files/input1.txt', locale='', "
                 "logging_level='DEBUG', loglevel=10, output='tests/sample_files/"
                 "nonexistent_test_output.txt', overwrite_file=False, quotechar='\"', "
-                "skip_footer=0, skip_header=0)'"
+                "skip_footer=0, skip_header=0, truncate=[])'"
             ],
         )
 
@@ -1067,6 +1094,58 @@ class TestParseArgs(unittest.TestCase):
             ],
         )
 
+    def test_parse_args_truncate_valid(self):
+        """
+        Test running the script with a valid --truncate parameter
+        """
+        input_file = "tests/sample_files/input1.txt"
+        output_file = "tests/sample_files/nonexistent_test_output.txt"
+        config_file = "tests/sample_files/configuration1.xlsx"
+        parser = target.parse_args(
+            [
+                "-i",
+                input_file,
+                "-o",
+                output_file,
+                "-c",
+                config_file,
+                "--truncate",
+                "1,12,15",
+            ]
+        )
+        self.assertEqual(parser.truncate, [1, 12, 15])
+
+    def test_parse_args_truncate_invalid(self):
+        """
+        Test running the script with a valid --truncate parameter
+        """
+        input_file = "tests/sample_files/input1.txt"
+        output_file = "tests/sample_files/nonexistent_test_output.txt"
+        config_file = "tests/sample_files/configuration1.xlsx"
+        with self.assertRaises(SystemExit) as cm1, self.assertLogs(
+            level="CRITICAL"
+        ) as cm2:
+            target.parse_args(
+                [
+                    "-i",
+                    input_file,
+                    "-o",
+                    output_file,
+                    "-c",
+                    config_file,
+                    "--truncate",
+                    "INVALID",
+                ]
+            )
+        self.assertEqual(cm1.exception.code, 25)
+        self.assertEqual(
+            cm2.output,
+            [
+                "CRITICAL:root:The `--truncate` argument must be a comma-delimited "
+                "list of numbers. Exiting..."
+            ],
+        )
+
     def test_parse_args_version(self):
         """
         Test the --version argument
@@ -1184,6 +1263,45 @@ class TestProcess(unittest.TestCase):
         self.assertEqual(num_input_rows, 3)
         self.assertEqual(oldest_date, "20200305")
         self.assertEqual(most_recent_date, "20201225")
+
+    def test_process_invalid_truncate(self):
+        """
+        Test the full process with an invalid --truncate argument, value too high
+        """
+        output_file = "tests/sample_files/nonexistent_test_output.txt"
+        input = "tests/sample_files/input1.txt"
+        output = output_file
+        config = "tests/sample_files/configuration1.xlsx"
+        delimiter = "^"
+        quotechar = '"'
+        skip_header = 1
+        skip_footer = 1
+        date_field_to_report_on = 5
+        truncate = [2, 4, 255]
+        with self.assertRaises(SystemExit) as cm1, self.assertLogs(
+            level="CRITICAL"
+        ) as cm2:
+            target.process(
+                input,
+                output,
+                config,
+                delimiter,
+                quotechar,
+                skip_header,
+                skip_footer,
+                date_field_to_report_on,
+                'C',  # Default C locale
+                truncate,
+            )
+        self.assertEqual(cm1.exception.code, 26)
+        self.assertEqual(
+            cm2.output,
+            [
+                "CRITICAL:root:The value 255 passed in the `--truncate` argument is "
+                "invalid, it is higher than the 9 fields defined in the "
+                "configuration file. Exiting..."
+            ],
+        )
 
 
 class TestInit(unittest.TestCase):
