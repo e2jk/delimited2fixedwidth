@@ -15,7 +15,9 @@ import os
 import sys
 import tempfile
 import unittest
-from locale import LC_NUMERIC, getlocale, setlocale
+from locale import LC_NUMERIC
+from locale import Error as localeError
+from locale import getlocale, setlocale
 
 CURRENT_VERSION = "1.0.6-dev"
 
@@ -742,7 +744,10 @@ class TestConvertCell(unittest.TestCase):
         # Save default locale
         loc = getlocale(LC_NUMERIC)
         # Set to French locale
-        setlocale(LC_NUMERIC, "fr")
+        try:
+            setlocale(LC_NUMERIC, "fr_FR.utf8")
+        except localeError:
+            setlocale(LC_NUMERIC, "fr")
         output_value = target.convert_cell("1,36", "Decimal", 2, 3)
         self.assertEqual(output_value, "136")
         # Revert back to default locale
