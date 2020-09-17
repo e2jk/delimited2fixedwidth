@@ -77,6 +77,8 @@ def convert_date(value, output_format, idx_col, idx_row):
 
 def convert_cell(value, output_format, idx_col, idx_row):
     converted_value = ""
+    if output_format in ("Integer", "Decimal") and str(value).strip() == "":
+        value = "0"
     if "Time" == output_format:
         m = re.match(r"(\d{2})(:)?(\d{2})", value)
         if m:
@@ -90,8 +92,6 @@ def convert_cell(value, output_format, idx_col, idx_row):
     elif output_format.startswith("Date ("):
         converted_value = convert_date(value, output_format, idx_col, idx_row)
     elif "Decimal" == output_format:
-        if str(value).strip() == "":
-            value = 0
         # Decimal numbers must be sent with 2 decimal places and
         # *without* the decimal separator
         try:

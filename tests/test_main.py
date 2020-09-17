@@ -653,6 +653,34 @@ class TestConvertCell(unittest.TestCase):
             ],
         )
 
+    def test_convert_cell_integer(self):
+        """
+        Test converting a valid integer value.
+        """
+        output_value = target.convert_cell(136, "Integer", 2, 3)
+        self.assertEqual(output_value, 136)
+
+    def test_convert_cell_integer_as_string(self):
+        """
+        Test converting a valid integer value, sent as string
+        """
+        output_value = target.convert_cell("136", "Integer", 2, 3)
+        self.assertEqual(output_value, "136")
+
+    def test_convert_cell_integer_empty_string(self):
+        """
+        Test converting a integer value that was an empty string
+        """
+        output_value = target.convert_cell("", "Integer", 2, 5)
+        self.assertEqual(output_value, "0")
+
+    def test_convert_cell_integer_spaces(self):
+        """
+        Test converting a integer value that are just spaces
+        """
+        output_value = target.convert_cell("   ", "Integer", 2, 5)
+        self.assertEqual(output_value, "0")
+
     def test_convert_cell_decimal(self):
         """
         Test converting a valid decimal value.
@@ -668,6 +696,14 @@ class TestConvertCell(unittest.TestCase):
         """
         output_value = target.convert_cell(2, "Decimal", 2, 3)
         self.assertEqual(output_value, "200")
+
+    def test_convert_cell_decimal_as_string(self):
+        """
+        Test converting a valid decimal value, sent as string
+        Returns "cents" instead of "dollars"
+        """
+        output_value = target.convert_cell("1.36", "Decimal", 2, 3)
+        self.assertEqual(output_value, "136")
 
     def test_convert_cell_decimal_empty_string(self):
         """
