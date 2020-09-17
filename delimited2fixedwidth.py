@@ -152,9 +152,12 @@ def convert_content(input_content, config, date_field_to_report_on=None, truncat
                 if not truncate or idx_col + 1 not in truncate:
                     logging.critical(
                         "Field %d on row %d (ignoring the header) is too long! Length: "
-                        "%d, max length %d. Exiting..." % (
-                            idx_col + 1, idx_row + 1, len(cell),
-                            config[idx_col]["length"]
+                        "%d, max length %d. Exiting..."
+                        % (
+                            idx_col + 1,
+                            idx_row + 1,
+                            len(cell),
+                            config[idx_col]["length"],
                         )
                     )
                     sys.exit(20)
@@ -162,12 +165,15 @@ def convert_content(input_content, config, date_field_to_report_on=None, truncat
                     # Truncate to the defined maximum field length
                     logging.info(
                         "Field %d on row %d (ignoring the header) is too long! Length: "
-                        "%d, max length %d. Truncating field to its max length." % (
-                            idx_col + 1, idx_row + 1, len(cell),
-                            config[idx_col]["length"]
+                        "%d, max length %d. Truncating field to its max length."
+                        % (
+                            idx_col + 1,
+                            idx_row + 1,
+                            len(cell),
+                            config[idx_col]["length"],
                         )
                     )
-                    cell = cell[:config[idx_col]["length"]]
+                    cell = cell[: config[idx_col]["length"]]
 
             padded_output_value = pad_output_value(cell, output_format, length)
             converted_row_content.append(padded_output_value)
@@ -390,7 +396,7 @@ def add_shared_args(parser):
         help="Change the locale, useful to handle decimal separators",
         action="store",
         required=False,
-        default='',
+        default="",
     )
     parser.add_argument(
         "-t",
@@ -474,7 +480,7 @@ def process(
     skip_header,
     skip_footer,
     date_field_to_report_on=None,
-    locale='',
+    locale="",
     truncate=None,
 ):
     # By default, set to the user's default locale, used to appropriately handle

@@ -742,7 +742,7 @@ class TestConvertCell(unittest.TestCase):
         # Save default locale
         loc = getlocale(LC_NUMERIC)
         # Set to French locale
-        setlocale(LC_NUMERIC, 'fr')
+        setlocale(LC_NUMERIC, "fr")
         output_value = target.convert_cell("1,36", "Decimal", 2, 3)
         self.assertEqual(output_value, "136")
         # Revert back to default locale
@@ -1184,7 +1184,7 @@ class TestProcess(unittest.TestCase):
             skip_header,
             skip_footer,
             date_field_to_report_on,
-            'C',  # Default C locale
+            "C",  # Default C locale
         )
         # Confirm the output file has been written and its content
         self.assertTrue(os.path.isfile(output_file))
@@ -1236,7 +1236,7 @@ class TestProcess(unittest.TestCase):
             skip_header,
             skip_footer,
             date_field_to_report_on,
-            'C',  # Default C locale
+            "C",  # Default C locale
         )
         # Confirm the output file has been written and its content
         self.assertTrue(os.path.isfile(output_file))
@@ -1290,7 +1290,7 @@ class TestProcess(unittest.TestCase):
                 skip_header,
                 skip_footer,
                 date_field_to_report_on,
-                'C',  # Default C locale
+                "C",  # Default C locale
                 truncate,
             )
         self.assertEqual(cm1.exception.code, 26)
