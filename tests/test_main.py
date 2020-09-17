@@ -669,6 +669,20 @@ class TestConvertCell(unittest.TestCase):
         output_value = target.convert_cell(2, "Decimal", 2, 3)
         self.assertEqual(output_value, "200")
 
+    def test_convert_cell_decimal_empty_string(self):
+        """
+        Test converting a decimal value that was an empty string
+        """
+        output_value = target.convert_cell("", "Decimal", 2, 5)
+        self.assertEqual(output_value, "0")
+
+    def test_convert_cell_decimal_spaces(self):
+        """
+        Test converting a decimal value that are just spaces
+        """
+        output_value = target.convert_cell("   ", "Decimal", 2, 5)
+        self.assertEqual(output_value, "0")
+
     def test_convert_cell_decimal_rounding(self):
         """
         Test converting a valid decimal value, rounding the value
