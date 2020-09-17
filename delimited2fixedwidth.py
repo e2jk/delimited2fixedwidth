@@ -10,7 +10,7 @@ import logging
 import os
 import re
 import sys
-from locale import atof, setlocale, LC_NUMERIC
+from locale import LC_NUMERIC, atof, setlocale
 
 from openpyxl import load_workbook
 

@@ -15,7 +15,7 @@ import os
 import sys
 import tempfile
 import unittest
-from locale import setlocale, LC_NUMERIC, getlocale
+from locale import LC_NUMERIC, getlocale, setlocale
 
 CURRENT_VERSION = "1.0.6-dev"
 
