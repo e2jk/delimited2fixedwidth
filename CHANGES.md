@@ -1,7 +1,7 @@
 # Changelog
 These are the changes brought in each versions:
 
-v1.0.6 (TBD)
+v1.0.6 (2020-09-17)
 ===================
 Non-breaking changes:
 * New `--truncate` argument to specify which fields can be cut when the input value is longer than the defined maximum field length

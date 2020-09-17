@@ -19,7 +19,7 @@ from locale import LC_NUMERIC
 from locale import Error as localeError
 from locale import getlocale, setlocale
 
-CURRENT_VERSION = "1.0.6-dev"
+CURRENT_VERSION = "1.0.6"
 
 sys.path.append(".")
 target = __import__("delimited2fixedwidth")
