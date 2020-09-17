@@ -48,6 +48,7 @@ The **Output format** defines how the input value must be treated and transforme
 * Decimal
   * Decimal numbers get sent as "cents" instead of "dollars", rounded to the nearest cent. (yeah, weird explanation -- better have a look at the example...). Also padded with `0`s added to the left.
   * Example: "`123.458`" becomes "`00012346`" if a length of 8 is defined
+
 * `Date (DD/MM/YYYY to YYYYMMDD)`
 * `Date (MM/DD/YYYY to YYYYMMDD)`
 * `Date (DD-MM-YYYY to YYYYMMDD)`
@@ -109,6 +110,8 @@ optional arguments:
                         The number of header lines to skip (default 0)
   -sf SKIP_FOOTER, --skip-footer SKIP_FOOTER
                         The number of footer lines to skip (default 0)
+  -l LOCALE, --locale LOCALE
+                        Change the locale, useful to handle decimal separators
   -d, --debug           Print lots of debugging statements
   -v, --verbose         Be verbose
 ```

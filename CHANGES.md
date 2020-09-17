@@ -4,6 +4,7 @@ These are the changes brought in each versions:
 v1.0.6 (TBD)
 ===================
 Non-breaking changes:
+* New `--locale` argument, in case a different Decimal separator is used
 * Fix: Spaces or empty string accepted as valid Integer and Decimal values (interpreted as 0)
 
 v1.0.5 (2020-09-16)

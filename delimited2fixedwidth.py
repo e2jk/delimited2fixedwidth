@@ -10,6 +10,7 @@ import logging
 import os
 import re
 import sys
+from locale import atof, setlocale, LC_NUMERIC
 
 from openpyxl import load_workbook
 
@@ -95,10 +96,13 @@ def convert_cell(value, output_format, idx_col, idx_row):
         # Decimal numbers must be sent with 2 decimal places and
         # *without* the decimal separator
         try:
-            # Convert to float, multiply by 100, round without decimals,
+            # Convert to string, then float respecting the user's Locale,
+            # multiply by 100, round without decimals,
             # convert to integer (to drop the extra decimal values) then
             # finally back to string...
-            converted_value = float(value)
+            converted_value = str(value)
+            converted_value = atof(converted_value)
+            converted_value = float(converted_value)
             converted_value = converted_value * 100
             converted_value = round(converted_value, 0)
             converted_value = int(converted_value)
@@ -355,6 +359,14 @@ def add_shared_args(parser):
         required=False,
         default=0,
     )
+    parser.add_argument(
+        "-l",
+        "--locale",
+        help="Change the locale, useful to handle decimal separators",
+        action="store",
+        required=False,
+        default='',
+    )
 
 
 def parse_args(arguments):
@@ -426,7 +438,12 @@ def process(
     skip_header,
     skip_footer,
     date_field_to_report_on=None,
+    locale=''
 ):
+    # By default, set to the user's default locale, used to appropriately handle
+    # Decimal separators
+    setlocale(LC_NUMERIC, locale)
+
     config = load_config(config)
 
     input_content = read_input_file(
@@ -455,6 +472,8 @@ def init():
             args.quotechar,
             args.skip_header,
             args.skip_footer,
+            None,
+            args.locale,
         )
 
 

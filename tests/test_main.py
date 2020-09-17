@@ -15,6 +15,7 @@ import os
 import sys
 import tempfile
 import unittest
+from locale import setlocale, LC_NUMERIC, getlocale
 
 CURRENT_VERSION = "1.0.6-dev"
 
@@ -705,6 +706,21 @@ class TestConvertCell(unittest.TestCase):
         output_value = target.convert_cell("1.36", "Decimal", 2, 3)
         self.assertEqual(output_value, "136")
 
+    def test_convert_cell_decimal_with_commas(self):
+        """
+        Test converting a valid decimal value, sent with a comma as decimal separator.
+        Let's test with the French locale.
+        Returns "cents" instead of "dollars"
+        """
+        # Save default locale
+        loc = getlocale(LC_NUMERIC)
+        # Set to French locale
+        setlocale(LC_NUMERIC, 'fr')
+        output_value = target.convert_cell("1,36", "Decimal", 2, 3)
+        self.assertEqual(output_value, "136")
+        # Revert back to default locale
+        setlocale(LC_NUMERIC, loc)
+
     def test_convert_cell_decimal_empty_string(self):
         """
         Test converting a decimal value that was an empty string
@@ -904,9 +920,9 @@ class TestParseArgs(unittest.TestCase):
             [
                 "DEBUG:root:These are the parsed arguments:\n'Namespace(config="
                 "'tests/sample_files/configuration1.xlsx', delimiter=',', "
-                "input='tests/sample_files/input1.txt', logging_level='DEBUG', "
-                "loglevel=10, output='tests/sample_files/nonexistent_test_"
-                "output.txt', overwrite_file=False, quotechar='\"', "
+                "input='tests/sample_files/input1.txt', locale='', "
+                "logging_level='DEBUG', loglevel=10, output='tests/sample_files/"
+                "nonexistent_test_output.txt', overwrite_file=False, quotechar='\"', "
                 "skip_footer=0, skip_header=0)'"
             ],
         )
@@ -1089,6 +1105,7 @@ class TestProcess(unittest.TestCase):
             skip_header,
             skip_footer,
             date_field_to_report_on,
+            'C',  # Default C locale
         )
         # Confirm the output file has been written and its content
         self.assertTrue(os.path.isfile(output_file))
@@ -1140,6 +1157,7 @@ class TestProcess(unittest.TestCase):
             skip_header,
             skip_footer,
             date_field_to_report_on,
+            'C',  # Default C locale
         )
         # Confirm the output file has been written and its content
         self.assertTrue(os.path.isfile(output_file))
@@ -1206,6 +1224,8 @@ class TestInit(unittest.TestCase):
             "1",
             "--skip-footer",
             "1",
+            "--locale",
+            "C",  # Default C locale
         ]
         target.init()
         # Confirm the output file has been written and its content
