@@ -14,7 +14,6 @@ from locale import LC_NUMERIC, atof, setlocale
 
 from openpyxl import load_workbook
 
-
 SUPPORTED_OUTPUT_FORMATS = (
     "Integer",
     "Decimal",
