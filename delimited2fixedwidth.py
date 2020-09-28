@@ -25,10 +25,15 @@ SUPPORTED_OUTPUT_FORMATS = (
     "Date (DD.MM.YYYY to YYYYMMDD)",
     "Date (DDMMYYYY to YYYYMMDD)",
     "Date (DD/MM/YYYY to DD/MM/YYYY)",
+    "Date (DD-MM-YYYY to DD-MM-YYYY)",
+    "Date (DD.MM.YYYY to DD.MM.YYYY)",
     "Date (MM/DD/YYYY to YYYYMMDD)",
     "Date (MM-DD-YYYY to YYYYMMDD)",
     "Date (MM.DD.YYYY to YYYYMMDD)",
     "Date (MMDDYYYY to YYYYMMDD)",
+    "Date (MM/DD/YYYY to MM/DD/YYYY)",
+    "Date (MM-DD-YYYY to MM-DD-YYYY)",
+    "Date (MM.DD.YYYY to MM.DD.YYYY)",
 )
 
 
@@ -86,6 +91,16 @@ def convert_date(value, output_format, idx_col, idx_row):
         if converted_value and not output_format.endswith(" to YYYYMMDD)"):
             if output_format.endswith(" to DD/MM/YYYY)"):
                 converted_value = "%s/%s/%s" % (day, month, year)
+            if output_format.endswith(" to DD-MM-YYYY)"):
+                converted_value = "%s-%s-%s" % (day, month, year)
+            if output_format.endswith(" to DD.MM.YYYY)"):
+                converted_value = "%s.%s.%s" % (day, month, year)
+            if output_format.endswith(" to MM/DD/YYYY)"):
+                converted_value = "%s/%s/%s" % (month, day, year)
+            if output_format.endswith(" to MM-DD-YYYY)"):
+                converted_value = "%s-%s-%s" % (month, day, year)
+            if output_format.endswith(" to MM.DD.YYYY)"):
+                converted_value = "%s.%s.%s" % (month, day, year)
     if not converted_value:
         logging.critical(
             "Invalid date value '%s' for format '%s' in field %d on row %d "

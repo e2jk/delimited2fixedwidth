@@ -52,10 +52,15 @@ The **Output format** defines how the input value must be treated and transforme
 * `Date (DD/MM/YYYY to YYYYMMDD)`
 * `Date (MM/DD/YYYY to YYYYMMDD)`
 * `Date (DD/MM/YYYY to DD/MM/YYYY)`
+* `Date (MM/DD/YYYY to MM/DD/YYYY)`
 * `Date (DD-MM-YYYY to YYYYMMDD)`
 * `Date (MM-DD-YYYY to YYYYMMDD)`
+* `Date (DD-MM-YYYY to DD-MM-YYYY)`
+* `Date (MM-DD-YYYY to MM-DD-YYYY)`
 * `Date (DD.MM.YYYY to YYYYMMDD)`
 * `Date (MM.DD.YYYY to YYYYMMDD)`
+* `Date (DD.MM.YYYY to DD.MM.YYYY)`
+* `Date (MM.DD.YYYY to MM.DD.YYYY)`
 * `Date (DDMMYYYY to YYYYMMDD)`
 * `Date (MMDDYYYY to YYYYMMDD)`
   * A date sent with either Day or Month as first element, and with a slash, dash, dot or no separator. Becomes (without spaces) "year month day". When the separator is not empty, the day and month can omit the leading 0, if need be.

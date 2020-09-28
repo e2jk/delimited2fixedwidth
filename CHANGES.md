@@ -7,6 +7,11 @@ Non-breaking changes:
 ---------------------
 * Support for new date formats:
   * `Date (DD/MM/YYYY to DD/MM/YYYY)`
+  * `Date (DD-MM-YYYY to DD-MM-YYYY)`
+  * `Date (DD.MM.YYYY to DD.MM.YYYY)`
+  * `Date (MM/DD/YYYY to MM/DD/YYYY)`
+  * `Date (MM-DD-YYYY to MM-DD-YYYY)`
+  * `Date (MM.DD.YYYY to MM.DD.YYYY)`
 
 v1.0.6 (2020-09-17)
 ===================
