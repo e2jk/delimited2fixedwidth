@@ -801,11 +801,25 @@ class TestConvertCell(unittest.TestCase):
 
     def test_convert_cell_text_nonsense_output_format(self):
         """
-        Test converting a valid text value, passing a nonsense output_format.
-        Returns the same value
+        Test converting a valid text value, passing a nonsense output_format
         """
-        output_value = target.convert_cell("This is the value", "blabla", 2, 3)
-        self.assertEqual(output_value, "This is the value")
+        with self.assertRaises(SystemExit) as cm1, self.assertLogs(
+            level="CRITICAL"
+        ) as cm2:
+            target.convert_cell("This is the value", "blabla", 2, 3)
+        self.assertEqual(cm1.exception.code, 27)
+        self.assertEqual(
+            cm2.output,
+            [
+                "CRITICAL:root:Invalid output format 'blabla', must be one of "
+                "'Integer', 'Decimal', 'Time', 'Text', "
+                "'Date (DD/MM/YYYY to YYYYMMDD)', 'Date (DD-MM-YYYY to YYYYMMDD)', "
+                "'Date (DD.MM.YYYY to YYYYMMDD)', 'Date (DDMMYYYY to YYYYMMDD)', "
+                "'Date (MM/DD/YYYY to YYYYMMDD)', 'Date (MM-DD-YYYY to YYYYMMDD)', "
+                "'Date (MM.DD.YYYY to YYYYMMDD)', 'Date (MMDDYYYY to YYYYMMDD)'. "
+                "Exiting..."
+            ],
+        )
 
 
 class TestPadOutputValue(unittest.TestCase):

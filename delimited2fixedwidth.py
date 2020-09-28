@@ -15,6 +15,22 @@ from locale import LC_NUMERIC, atof, setlocale
 from openpyxl import load_workbook
 
 
+SUPPORTED_OUTPUT_FORMATS = (
+    "Integer",
+    "Decimal",
+    "Time",
+    "Text",
+    "Date (DD/MM/YYYY to YYYYMMDD)",
+    "Date (DD-MM-YYYY to YYYYMMDD)",
+    "Date (DD.MM.YYYY to YYYYMMDD)",
+    "Date (DDMMYYYY to YYYYMMDD)",
+    "Date (MM/DD/YYYY to YYYYMMDD)",
+    "Date (MM-DD-YYYY to YYYYMMDD)",
+    "Date (MM.DD.YYYY to YYYYMMDD)",
+    "Date (MMDDYYYY to YYYYMMDD)",
+)
+
+
 def write_output_file(output_content, output_file):
     with open(output_file, "w") as ofile:
         ofile.write("\n".join(output_content))
@@ -77,6 +93,16 @@ def convert_date(value, output_format, idx_col, idx_row):
 
 
 def convert_cell(value, output_format, idx_col, idx_row):
+    if output_format not in SUPPORTED_OUTPUT_FORMATS:
+        logging.critical(
+            "Invalid output format '%s', must be one of '%s'. "
+            "Exiting..."
+            % (
+                output_format,
+                "', '".join(SUPPORTED_OUTPUT_FORMATS),
+            )
+        )
+        sys.exit(27)
     converted_value = ""
     if output_format in ("Integer", "Decimal") and str(value).strip() == "":
         value = "0"
@@ -218,20 +244,6 @@ def read_input_file(input_file, delimiter, quotechar, skip_header, skip_footer):
 
 def load_config(config_file):
     config = []
-    supported_output_formats = (
-        "Integer",
-        "Decimal",
-        "Time",
-        "Text",
-        "Date (DD/MM/YYYY to YYYYMMDD)",
-        "Date (DD-MM-YYYY to YYYYMMDD)",
-        "Date (DD.MM.YYYY to YYYYMMDD)",
-        "Date (DDMMYYYY to YYYYMMDD)",
-        "Date (MM/DD/YYYY to YYYYMMDD)",
-        "Date (MM-DD-YYYY to YYYYMMDD)",
-        "Date (MM.DD.YYYY to YYYYMMDD)",
-        "Date (MMDDYYYY to YYYYMMDD)",
-    )
     supported_skip_field = ("True", "False", "", None)
     logging.debug("Loading configuration %s" % config_file)
 
@@ -276,7 +288,7 @@ def load_config(config_file):
                     )
                     sys.exit(14)
             if idx_col == output_format_col:
-                if cell.value in supported_output_formats:
+                if cell.value in SUPPORTED_OUTPUT_FORMATS:
                     config[idx_row]["output_format"] = cell.value
                 else:
                     logging.critical(
@@ -285,7 +297,7 @@ def load_config(config_file):
                         % (
                             cell.value,
                             idx_row + 2,
-                            "', '".join(supported_output_formats),
+                            "', '".join(SUPPORTED_OUTPUT_FORMATS),
                         )
                     )
                     sys.exit(15)
