@@ -51,6 +51,7 @@ The **Output format** defines how the input value must be treated and transforme
 
 * `Date (DD/MM/YYYY to YYYYMMDD)`
 * `Date (MM/DD/YYYY to YYYYMMDD)`
+* `Date (DD/MM/YYYY to DD/MM/YYYY)`
 * `Date (DD-MM-YYYY to YYYYMMDD)`
 * `Date (MM-DD-YYYY to YYYYMMDD)`
 * `Date (DD.MM.YYYY to YYYYMMDD)`

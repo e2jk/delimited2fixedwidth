@@ -24,6 +24,7 @@ SUPPORTED_OUTPUT_FORMATS = (
     "Date (DD-MM-YYYY to YYYYMMDD)",
     "Date (DD.MM.YYYY to YYYYMMDD)",
     "Date (DDMMYYYY to YYYYMMDD)",
+    "Date (DD/MM/YYYY to DD/MM/YYYY)",
     "Date (MM/DD/YYYY to YYYYMMDD)",
     "Date (MM-DD-YYYY to YYYYMMDD)",
     "Date (MM.DD.YYYY to YYYYMMDD)",
@@ -82,6 +83,9 @@ def convert_date(value, output_format, idx_col, idx_row):
             datetime.datetime.strptime(converted_value, "%Y%m%d")
         except ValueError:
             converted_value = ""
+        if converted_value and not output_format.endswith(" to YYYYMMDD)"):
+            if output_format.endswith(" to DD/MM/YYYY)"):
+                converted_value = "%s/%s/%s" % (day, month, year)
     if not converted_value:
         logging.critical(
             "Invalid date value '%s' for format '%s' in field %d on row %d "

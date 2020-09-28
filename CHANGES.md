@@ -5,7 +5,8 @@ v1.0.7 (TBD)
 ===================
 Non-breaking changes:
 ---------------------
-*
+* Support for new date formats:
+  * `Date (DD/MM/YYYY to DD/MM/YYYY)`
 
 v1.0.6 (2020-09-17)
 ===================
