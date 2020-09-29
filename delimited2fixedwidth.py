@@ -14,26 +14,25 @@ from locale import LC_NUMERIC, atof, setlocale
 
 from openpyxl import load_workbook
 
-SUPPORTED_OUTPUT_FORMATS = (
-    "Integer",
-    "Decimal",
-    "Time",
-    "Text",
-    "Date (DD/MM/YYYY to YYYYMMDD)",
-    "Date (DD-MM-YYYY to YYYYMMDD)",
-    "Date (DD.MM.YYYY to YYYYMMDD)",
-    "Date (DDMMYYYY to YYYYMMDD)",
-    "Date (DD/MM/YYYY to DD/MM/YYYY)",
-    "Date (DD-MM-YYYY to DD-MM-YYYY)",
-    "Date (DD.MM.YYYY to DD.MM.YYYY)",
-    "Date (MM/DD/YYYY to YYYYMMDD)",
-    "Date (MM-DD-YYYY to YYYYMMDD)",
-    "Date (MM.DD.YYYY to YYYYMMDD)",
-    "Date (MMDDYYYY to YYYYMMDD)",
-    "Date (MM/DD/YYYY to MM/DD/YYYY)",
-    "Date (MM-DD-YYYY to MM-DD-YYYY)",
-    "Date (MM.DD.YYYY to MM.DD.YYYY)",
-)
+SUPPORTED_OUTPUT_FORMATS = None
+
+
+def define_supported_output_formats():
+    global SUPPORTED_OUTPUT_FORMATS
+    SUPPORTED_OUTPUT_FORMATS = [
+        "Integer",
+        "Decimal",
+        "Time",
+        "Text",
+    ]
+    delimiters = ["/", "-", ".", ""]
+    date_patterns = ["YYYYMMDD"]
+    for d in delimiters:
+        date_patterns.append("MM{0}DD{0}YYYY".format(d))
+        date_patterns.append("DD{0}MM{0}YYYY".format(d))
+    for p1 in date_patterns:
+        for p2 in date_patterns:
+            SUPPORTED_OUTPUT_FORMATS.append("Date ({0} to {1})".format(p2, p1))
 
 
 def write_output_file(output_content, output_file):
@@ -52,26 +51,45 @@ def pad_output_value(val, output_format, length):
     return val
 
 
-def convert_date(value, output_format, idx_col, idx_row):
-    converted_value = ""
-    delim = output_format[8]
-    if delim not in ("/", "-", "."):
-        delim = ""
-    if delim == "" and len(value) != 8:
-        logging.critical(
-            "Invalid date value '%s' for format '%s' in field %d on row %d "
-            "(ignoring the header), day and month must contain leading 0's. Exiting..."
-            % (value, output_format, idx_col, idx_row)
-        )
-        sys.exit(24)
+def determine_date_delimiters(output_format):
+    # Identify the delimiter in the input format
+    supported_delimiters = ("/", "-", ".")
+    in_delim = output_format[8]
+    if in_delim not in supported_delimiters:
+        in_delim = ""
+
+    # Identify the delimiter in the output format
+    out_delim = output_format[-4]
+    if out_delim == "Y":
+        out_delim = output_format[-6]
+    if out_delim not in supported_delimiters:
+        out_delim = ""
+    return (in_delim, out_delim)
+
+
+def parse_input_date(value, output_format, in_delim):
+    m = None
     if output_format.startswith("Date (DD"):
         m = re.match(
-            r"([0123]?\d){delim}([01]?\d){delim}(\d{{4}})".format(delim=delim), value
+            r"([0123]?\d){in_delim}([01]?\d){in_delim}(\d{{4}})".format(
+                in_delim=in_delim
+            ),
+            value,
         )
     elif output_format.startswith("Date (MM"):
         m = re.match(
-            r"([01]?\d){delim}([0123]?\d){delim}(\d{{4}})".format(delim=delim), value
+            r"([01]?\d){in_delim}([0123]?\d){in_delim}(\d{{4}})".format(
+                in_delim=in_delim
+            ),
+            value,
         )
+    elif output_format.startswith("Date (YYYY"):
+        m = re.match(
+            r"(\d{{4}}){in_delim}([0123]?\d)([01]?\d)".format(in_delim=in_delim), value
+        )
+    year = None
+    month = None
+    day = None
     if m:
         if output_format.startswith("Date (DD"):
             year = m.group(3)
@@ -81,25 +99,52 @@ def convert_date(value, output_format, idx_col, idx_row):
             year = m.group(3)
             month = m.group(1).zfill(2)
             day = m.group(2).zfill(2)
-        converted_value = "%s%s%s" % (year, month, day)
-        # Is it a valid date?
-        try:
-            datetime.datetime.strptime(converted_value, "%Y%m%d")
-        except ValueError:
-            converted_value = ""
-        if converted_value and not output_format.endswith(" to YYYYMMDD)"):
-            if output_format.endswith(" to DD/MM/YYYY)"):
-                converted_value = "%s/%s/%s" % (day, month, year)
-            if output_format.endswith(" to DD-MM-YYYY)"):
-                converted_value = "%s-%s-%s" % (day, month, year)
-            if output_format.endswith(" to DD.MM.YYYY)"):
-                converted_value = "%s.%s.%s" % (day, month, year)
-            if output_format.endswith(" to MM/DD/YYYY)"):
-                converted_value = "%s/%s/%s" % (month, day, year)
-            if output_format.endswith(" to MM-DD-YYYY)"):
-                converted_value = "%s-%s-%s" % (month, day, year)
-            if output_format.endswith(" to MM.DD.YYYY)"):
-                converted_value = "%s.%s.%s" % (month, day, year)
+        elif output_format.startswith("Date (YYYY"):
+            year = m.group(1)
+            month = m.group(2).zfill(2)
+            day = m.group(3).zfill(2)
+    return (year, month, day)
+
+
+def generate_output_date(year, month, day, output_format, out_delim):
+    converted_value = ""
+    if output_format.endswith(
+        " to YYYY{out_delim}MM{out_delim}DD)".format(out_delim=out_delim)
+    ):
+        converted_value = "%s%s%s%s%s" % (year, out_delim, month, out_delim, day)
+    if output_format.endswith(
+        " to DD{out_delim}MM{out_delim}YYYY)".format(out_delim=out_delim)
+    ):
+        converted_value = "%s%s%s%s%s" % (day, out_delim, month, out_delim, year)
+    if output_format.endswith(
+        " to MM{out_delim}DD{out_delim}YYYY)".format(out_delim=out_delim)
+    ):
+        converted_value = "%s%s%s%s%s" % (month, out_delim, day, out_delim, year)
+    return converted_value
+
+
+def convert_date(value, output_format, idx_col, idx_row):
+    converted_value = ""
+    (in_delim, out_delim) = determine_date_delimiters(output_format)
+    if in_delim == "" and len(value) != 8:
+        logging.critical(
+            "Invalid date value '%s' for format '%s' in field %d on row %d "
+            "(ignoring the header), day and month must contain leading 0's. Exiting..."
+            % (value, output_format, idx_col, idx_row)
+        )
+        sys.exit(24)
+
+    (year, month, day) = parse_input_date(value, output_format, in_delim)
+
+    # Is it a valid date?
+    try:
+        datetime.datetime.strptime("%s%s%s" % (year, month, day), "%Y%m%d")
+    except ValueError:
+        pass
+    else:
+        converted_value = generate_output_date(
+            year, month, day, output_format, out_delim
+        )
     if not converted_value:
         logging.critical(
             "Invalid date value '%s' for format '%s' in field %d on row %d "
@@ -516,6 +561,8 @@ def process(
     # By default, set to the user's default locale, used to appropriately handle
     # Decimal separators
     setlocale(LC_NUMERIC, locale)
+
+    define_supported_output_formats()
 
     config = load_config(config)
 

@@ -5,13 +5,11 @@ v1.0.7 (TBD)
 ===================
 Non-breaking changes:
 ---------------------
-* Support for new date formats:
+* Support a large number of new date formats. See at the top of the [`test_main.py` file](https://github.com/e2jk/delimited2fixedwidth/blob/master/tests/test_main.py#L36) for the full list of supported codes. Some examples:
   * `Date (DD/MM/YYYY to DD/MM/YYYY)`
-  * `Date (DD-MM-YYYY to DD-MM-YYYY)`
-  * `Date (DD.MM.YYYY to DD.MM.YYYY)`
-  * `Date (MM/DD/YYYY to MM/DD/YYYY)`
-  * `Date (MM-DD-YYYY to MM-DD-YYYY)`
-  * `Date (MM.DD.YYYY to MM.DD.YYYY)`
+  * `Date (YYYYMMDD to DD.MM.YYYY)`
+  * `Date (MM.DD.YYYY to YYYYMMDD)`
+  * `Date (YYYYMMDD to MM-DD-YYYY)`
 
 v1.0.6 (2020-09-17)
 ===================
