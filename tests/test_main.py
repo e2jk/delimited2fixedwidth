@@ -1178,7 +1178,7 @@ class TestParseArgs(unittest.TestCase):
 
     def test_parse_args_truncate_invalid(self):
         """
-        Test running the script with a valid --truncate parameter
+        Test running the script with an invalid --truncate parameter
         """
         input_file = "tests/sample_files/input1.txt"
         output_file = "tests/sample_files/nonexistent_test_output.txt"
