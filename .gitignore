@@ -1,6 +1,7 @@
 data/
 html_dev/coverage/
 vendor_docs
+requirements-no-dev.txt
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
