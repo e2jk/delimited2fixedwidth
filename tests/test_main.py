@@ -31,6 +31,7 @@ def get_expected_supported_output_formats():
     return [
         "Integer",
         "Decimal",
+        "Keep numeric",
         "Time",
         "Text",
         "Date (YYYYMMDD to YYYYMMDD)",
@@ -823,6 +824,20 @@ class TestConvertCell(unittest.TestCase):
                 "5 (ignoring the header). Exiting..."
             ],
         )
+
+    def test_convert_cell_keep_numeric(self):
+        """
+        Test converting a value to keep only the numeric elements
+        """
+        output_value = target.convert_cell("00.00.00-000.00a", "Keep numeric", 2, 3)
+        self.assertEqual(output_value, "00000000000")
+
+    def test_convert_cell_keep_numeric_empty_string(self):
+        """
+        Test converting a keep_numeric value that was an empty string
+        """
+        output_value = target.convert_cell("", "Keep numeric", 2, 5)
+        self.assertEqual(output_value, "0")
 
     def test_convert_cell_text(self):
         """

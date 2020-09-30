@@ -22,6 +22,7 @@ def define_supported_output_formats():
     SUPPORTED_OUTPUT_FORMATS = [
         "Integer",
         "Decimal",
+        "Keep numeric",
         "Time",
         "Text",
     ]
@@ -41,7 +42,7 @@ def write_output_file(output_content, output_file):
 
 
 def pad_output_value(val, output_format, length):
-    if output_format in ("Integer", "Decimal"):
+    if output_format in ("Integer", "Decimal", "Keep numeric"):
         # Numbers get padded with 0's added in front (to the left)
         val = str(val).zfill(length)
     else:
@@ -167,7 +168,13 @@ def convert_cell(value, output_format, idx_col, idx_row):
         )
         sys.exit(27)
     converted_value = ""
-    if output_format in ("Integer", "Decimal") and str(value).strip() == "":
+    if "Keep numeric" == output_format:
+        # Strip all non-numeric characters
+        value = re.sub(r"\D", "", value)
+    if (
+        output_format in ("Integer", "Decimal", "Keep numeric")
+        and str(value).strip() == ""
+    ):
         value = "0"
     if "Time" == output_format:
         m = re.match(r"(\d{2})(:)?(\d{2})", value)
