@@ -310,7 +310,7 @@ class TestConvertContent(unittest.TestCase):
         Test converting empty full content
         """
         output_content = target.convert_content([], None)
-        self.assertEqual(output_content, ([], "99999999", "00000000"))
+        self.assertEqual(output_content, ([], [], "99999999", "00000000"))
 
     def test_convert_content_valid(self):
         """
@@ -330,9 +330,7 @@ class TestConvertContent(unittest.TestCase):
                 "skip_field": False,
             },
         ]
-        (output_content, ignore1, ignore2) = target.convert_content(
-            input_content, config
-        )
+        (output_content, _, _, _) = target.convert_content(input_content, config)
         expected_output = [
             "0142This is just text   20200620",
             "2247Short text          20201129",
@@ -388,7 +386,7 @@ class TestConvertContent(unittest.TestCase):
                 "skip_field": False,
             },
         ]
-        (output_content, ignore1, ignore2) = target.convert_content(
+        (output_content, _, _, _) = target.convert_content(
             input_content, config, None, [2, 3]
         )
         expected_output = [
@@ -451,9 +449,7 @@ class TestConvertContent(unittest.TestCase):
             },
             {"length": 10, "output_format": "Integer", "skip_field": False},
         ]
-        (output_content, ignore1, ignore2) = target.convert_content(
-            input_content, config
-        )
+        (output_content, _, _, _) = target.convert_content(input_content, config)
         expected_output = [
             "0142This is just text   202006200000000000",
             "2247Short text                  0000000000",
@@ -482,7 +478,7 @@ class TestConvertContent(unittest.TestCase):
             },
         ]
         date_field_to_report_on = 4
-        (output_content, oldest_date, most_recent_date) = target.convert_content(
+        (output_content, _, oldest_date, most_recent_date) = target.convert_content(
             input_content, config, date_field_to_report_on
         )
         expected_output = [
@@ -495,6 +491,45 @@ class TestConvertContent(unittest.TestCase):
         self.assertEqual(output_content, expected_output)
         self.assertEqual(oldest_date, "20200620")
         self.assertEqual(most_recent_date, "20201129")
+
+    def test_convert_content_divert(self):
+        """
+        Test converting full content where the input data has less fields than
+        are defined in the configuration
+        """
+        input_content = [
+            ["01:42", "This is just text", "blabla", 1, "20/6/2020"],
+            ["1357", "Hello", "ignore", 2],
+            ["2247", "Short text", "not important", 1],
+            ["0934", "Hello again", "nope", 1, "29/11/2020", "divert"],
+        ]
+        config = [
+            {"length": 4, "output_format": "Time", "skip_field": False},
+            {"length": 20, "output_format": "Text", "skip_field": False},
+            {"length": 0, "output_format": "Text", "skip_field": True},
+            {"length": 0, "output_format": "Text", "skip_field": True},
+            {
+                "length": 8,
+                "output_format": "Date (DD/MM/YYYY to YYYYMMDD)",
+                "skip_field": False,
+            },
+            {"length": 0, "output_format": "Text", "skip_field": True},
+            {"length": 10, "output_format": "Integer", "skip_field": False},
+        ]
+        divert_arg = {4: ["2", "3", "4"], 6: ["divert"]}
+        (output_content, diverted_output_content, _, _) = target.convert_content(
+            input_content, config, None, None, divert_arg
+        )
+        expected_output = [
+            "0142This is just text   202006200000000000",
+            "2247Short text                  0000000000",
+        ]
+        self.assertEqual(output_content, expected_output)
+        expected_diverted_output_content = [
+            "1357Hello                       0000000000",
+            "0934Hello again         202011290000000000",
+        ]
+        self.assertEqual(diverted_output_content, expected_diverted_output_content)
 
 
 class TestDefineSupportedOutputFormats(unittest.TestCase):
@@ -999,19 +1034,42 @@ class TestParseArgs(unittest.TestCase):
             self.assertFalse(os.path.isfile(output_file))
         with self.assertLogs(level="DEBUG") as cm:
             parser = target.parse_args(
-                ["-i", input_file, "-o", output_file, "-c", config_file, "--debug"]
+                [
+                    "-i",
+                    input_file,
+                    "-o",
+                    output_file,
+                    "-c",
+                    config_file,
+                    "--debug",
+                    "--divert",
+                    "2,abc",
+                    "--divert",
+                    "2,def",
+                    "--divert",
+                    "3,ghi,k lm",
+                ]
             )
         self.assertEqual(parser.loglevel, logging.DEBUG)
         self.assertEqual(parser.logging_level, "DEBUG")
+        self.assertEqual(parser.divert, {2: ["abc", "def"], 3: ["ghi,k lm"]})
         self.assertEqual(
             cm.output,
             [
-                "DEBUG:root:These are the parsed arguments:\n'Namespace(config="
-                "'tests/sample_files/configuration1.xlsx', delimiter=',', "
-                "input='tests/sample_files/input1.txt', locale='', "
-                "logging_level='DEBUG', loglevel=10, output='tests/sample_files/"
-                "nonexistent_test_output.txt', overwrite_file=False, quotechar='\"', "
-                "skip_footer=0, skip_header=0, truncate=[])'"
+                "DEBUG:root:These are the parsed arguments:\n'Namespace("
+                "config='tests/sample_files/configuration1.xlsx', "
+                "delimiter=',', "
+                "divert={2: ['abc', 'def'], 3: ['ghi,k lm']}, "
+                "input='tests/sample_files/input1.txt', "
+                "locale='', "
+                "logging_level='DEBUG', "
+                "loglevel=10, "
+                "output='tests/sample_files/nonexistent_test_output.txt', "
+                "overwrite_file=False, "
+                "quotechar='\"', "
+                "skip_footer=0, "
+                "skip_header=0, "
+                "truncate=[])'"
             ],
         )
 
@@ -1207,6 +1265,65 @@ class TestParseArgs(unittest.TestCase):
             ],
         )
 
+    def test_parse_args_divert_invalid(self):
+        """
+        Test running the script with invalid --divert arguments
+        """
+        input_file = "tests/sample_files/input1.txt"
+        output_file = "tests/sample_files/nonexistent_test_output.txt"
+        config_file = "tests/sample_files/configuration1.xlsx"
+        # Confirm the output file doesn't exist
+        if os.path.isfile(output_file):
+            os.remove(output_file)
+            self.assertFalse(os.path.isfile(output_file))
+        with self.assertRaises(SystemExit) as cm1, self.assertLogs(
+            level="CRITICAL"
+        ) as cm2:
+            target.parse_args(
+                [
+                    "-i",
+                    input_file,
+                    "-o",
+                    output_file,
+                    "-c",
+                    config_file,
+                    "--divert",
+                    "abc",
+                ]
+            )
+        self.assertEqual(cm1.exception.code, 28)
+        self.assertEqual(
+            cm2.output,
+            [
+                "CRITICAL:root:<field number> must be a number, as passed to the "
+                '`--divert` argument in the format "<field number>,<value to divert '
+                'on>" (without quotes). Exiting...'
+            ],
+        )
+        with self.assertRaises(SystemExit) as cm1, self.assertLogs(
+            level="CRITICAL"
+        ) as cm2:
+            target.parse_args(
+                [
+                    "-i",
+                    input_file,
+                    "-o",
+                    output_file,
+                    "-c",
+                    config_file,
+                    "--divert",
+                    "4",
+                ]
+            )
+        self.assertEqual(cm1.exception.code, 29)
+        self.assertEqual(
+            cm2.output,
+            [
+                'CRITICAL:root:The `--divert` argument must be formatted as "<field '
+                'number>,<value to divert on>" (without quotes). Exiting...'
+            ],
+        )
+
     def test_parse_args_version(self):
         """
         Test the --version argument
@@ -1325,6 +1442,73 @@ class TestProcess(unittest.TestCase):
         self.assertEqual(oldest_date, "20200305")
         self.assertEqual(most_recent_date, "20201225")
 
+    def test_process_valid_divert(self):
+        """
+        Test the full process with valid arguments, including --divert
+        """
+        output_file = "tests/sample_files/nonexistent_test_output.txt"
+        diverted_output_file = "tests/sample_files/nonexistent_test_output_diverted.txt"
+        # Confirm the output file doesn't exist
+        if os.path.isfile(output_file):
+            os.remove(output_file)
+            self.assertFalse(os.path.isfile(output_file))
+        # Confirm the output file doesn't exist
+        if os.path.isfile(diverted_output_file):
+            os.remove(diverted_output_file)
+            self.assertFalse(os.path.isfile(diverted_output_file))
+        input = "tests/sample_files/input1.txt"
+        output = output_file
+        config = "tests/sample_files/configuration1.xlsx"
+        delimiter = "^"
+        quotechar = '"'
+        skip_header = 1
+        skip_footer = 1
+        date_field_to_report_on = 5
+        (num_input_rows, oldest_date, most_recent_date) = target.process(
+            input,
+            output,
+            config,
+            delimiter,
+            quotechar,
+            skip_header,
+            skip_footer,
+            date_field_to_report_on,
+            "C",  # Default C locale
+            None,
+            {4: ["1.567"]},
+        )
+        # Confirm the output file has been written and its content
+        self.assertTrue(os.path.isfile(output_file))
+        with open(output_file) as f:
+            s = f.read()
+            expected_output = (
+                "0004000133034205413540000100202007312006"
+                "                                        "
+                "Leendert MOLENDIJK [90038979]           \n"
+                "0004000133034105409340022139202012252006"
+                "                                        "
+                "Leendert MOLENDIJK [90038979]           "
+            )
+            self.assertEqual(expected_output, s)
+        # Confirm the diverted output file has been written and its content
+        self.assertTrue(os.path.isfile(diverted_output_file))
+        with open(diverted_output_file) as f:
+            s = f.read()
+            expected_output = (
+                "0004000133034005407940000157202003051022"
+                "                                        "
+                "Leendert MOLENDIJK [90038979]           "
+            )
+            self.assertEqual(expected_output, s)
+        # Remove the output files
+        os.remove(output_file)
+        self.assertFalse(os.path.isfile(output_file))
+        os.remove(diverted_output_file)
+        self.assertFalse(os.path.isfile(diverted_output_file))
+        self.assertEqual(num_input_rows, 3)
+        self.assertEqual(oldest_date, "20200305")
+        self.assertEqual(most_recent_date, "20201225")
+
     def test_process_invalid_truncate(self):
         """
         Test the full process with an invalid --truncate argument, value too high
@@ -1360,6 +1544,45 @@ class TestProcess(unittest.TestCase):
             [
                 "CRITICAL:root:The value 255 passed in the `--truncate` argument is "
                 "invalid, it is higher than the 9 fields defined in the "
+                "configuration file. Exiting..."
+            ],
+        )
+
+    def test_process_invalid_divert(self):
+        """
+        Test the full process with an invalid --divert argument, value too high
+        """
+        output_file = "tests/sample_files/nonexistent_test_output.txt"
+        input = "tests/sample_files/input1.txt"
+        output = output_file
+        config = "tests/sample_files/configuration1.xlsx"
+        delimiter = "^"
+        quotechar = '"'
+        skip_header = 1
+        skip_footer = 1
+        date_field_to_report_on = 5
+        with self.assertRaises(SystemExit) as cm1, self.assertLogs(
+            level="CRITICAL"
+        ) as cm2:
+            target.process(
+                input,
+                output,
+                config,
+                delimiter,
+                quotechar,
+                skip_header,
+                skip_footer,
+                date_field_to_report_on,
+                "C",  # Default C locale
+                None,
+                {255: ["aaa"]},
+            )
+        self.assertEqual(cm1.exception.code, 30)
+        self.assertEqual(
+            cm2.output,
+            [
+                "CRITICAL:root:The value 255 passed as field ID in the `--divert` "
+                "argument is invalid, it is higher than the 9 fields defined in the "
                 "configuration file. Exiting..."
             ],
         )

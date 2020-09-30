@@ -85,7 +85,8 @@ delimited2fixedwidth.exe --input data\input_file.txt --config data\configuration
 Program help information
 ------------------------
 ```
-usage: delimited2fixedwidth.exe [-h] [--version] -o OUTPUT [-x] -i INPUT -c CONFIG [-dl DELIMITER] [-q QUOTECHAR] [-sh SKIP_HEADER] [-sf SKIP_FOOTER] [-d] [-v]
+usage: delimited2fixedwidth.py [-h] [--version] -o OUTPUT [-x] -i INPUT -c CONFIG [-dl DELIMITER] [-q QUOTECHAR]
+                               [-sh SKIP_HEADER] [-sf SKIP_FOOTER] [-l LOCALE] [-t TRUNCATE] [-dv DIVERT] [-d] [-v]
 
 Convert files from delimited (e.g. CSV) to fixed width format
 
@@ -110,10 +111,15 @@ optional arguments:
   -l LOCALE, --locale LOCALE
                         Change the locale, useful to handle decimal separators
   -t TRUNCATE, --truncate TRUNCATE
-                        Comma-delimited list of field numbers for which the output will be truncated
-                        at the maximum line length, should the input value be longer than the maximum
-                        defined field length. If not set, a field that is too long will cause the
-                        script to stop with an error.
+                        Comma-delimited list of field numbers for which the output will be truncated at the maximum
+                        line length, should the input value be longer than the maximum defined field length. If not
+                        set, a field that is too long will cause the script to stop with an error.
+  -dv DIVERT, --divert DIVERT
+                        Diverts to a separate file the content from rows containing a specific value at a specific
+                        place. The format of this parameter is "<field number>,<value to divert on>" (without quotes).
+                        This parameter can be repeated several times to support different values or different fields.
+                        The diverted content will be saved to a file whose name will be the output filename with
+                        "_diverted" added before the file extension.
   -d, --debug           Print lots of debugging statements
   -v, --verbose         Be verbose
 ```

@@ -214,8 +214,11 @@ def convert_cell(value, output_format, idx_col, idx_row):
     return converted_value
 
 
-def convert_content(input_content, config, date_field_to_report_on=None, truncate=None):
+def convert_content(
+    input_content, config, date_field_to_report_on=None, truncate=None, divert=None
+):
     output_content = []
+    diverted_output_content = []
     if date_field_to_report_on:
         # Argument is 1-based
         date_field_to_report_on -= 1
@@ -223,6 +226,7 @@ def convert_content(input_content, config, date_field_to_report_on=None, truncat
     most_recent_date = "00000000"
     for idx_row, row in enumerate(input_content):
         converted_row_content = []
+        divert_row = False
         # Confirm that the input_content doesn't have more fields than are
         # defined in the configuration file
         if len(row) > len(config):
@@ -236,6 +240,11 @@ def convert_content(input_content, config, date_field_to_report_on=None, truncat
         for idx_col, cell in enumerate(row):
             output_format = config[idx_col]["output_format"]
             length = config[idx_col]["length"]
+
+            if divert and idx_col + 1 in divert and str(cell) in divert[idx_col + 1]:
+                # This field contains a value marked for content diversion
+                # The content for the entire row will be diverted to a separate file
+                divert_row = True
 
             if config[idx_col]["skip_field"]:
                 cell = ""
@@ -286,10 +295,13 @@ def convert_content(input_content, config, date_field_to_report_on=None, truncat
             length = config[idx_col]["length"]
             padded_output_value = pad_output_value("", output_format, length)
             converted_row_content.append(padded_output_value)
-        output_content.append("".join(converted_row_content))
+        if divert_row:
+            diverted_output_content.append("".join(converted_row_content))
+        else:
+            output_content.append("".join(converted_row_content))
 
     logging.debug("The output content:\n%s" % "\n".join(output_content))
-    return (output_content, oldest_date, most_recent_date)
+    return (output_content, diverted_output_content, oldest_date, most_recent_date)
 
 
 def read_input_file(input_file, delimiter, quotechar, skip_header, skip_footer):
@@ -396,6 +408,32 @@ def get_version(rel_path):
             raise RuntimeError("Unable to find version string.")
 
 
+def validate_divert(divert):
+    divert_values = {}
+    for d in divert:
+        v = d.split(",", 1)
+        try:
+            v[0] = int(v[0])
+        except ValueError:
+            logging.critical(
+                "<field number> must be a number, as passed to the `--divert` "
+                'argument in the format "<field number>,<value to divert on>" '
+                "(without quotes). Exiting..."
+            )
+            sys.exit(28)
+        if len(v) == 2:
+            if v[0] not in divert_values:
+                divert_values[v[0]] = []
+            divert_values[v[0]].append(v[1])
+        else:
+            logging.critical(
+                'The `--divert` argument must be formatted as "<field number>,'
+                '<value to divert on>" (without quotes). Exiting...'
+            )
+            sys.exit(29)
+    return divert_values
+
+
 def validate_shared_args(args):
     if not os.path.isfile(args.input):
         logging.critical("The specified input file does not exist. Exiting...")
@@ -427,6 +465,8 @@ def validate_shared_args(args):
                 )
                 sys.exit(25)
         args.truncate = truncate
+    if args.divert:
+        args.divert = validate_divert(args.divert)
 
 
 def add_shared_args(parser):
@@ -488,6 +528,19 @@ def add_shared_args(parser):
         "the maximum defined field length. If not set, a field that is too long will "
         "cause the script to stop with an error.",
         action="store",
+        required=False,
+        default=[],
+    )
+    parser.add_argument(
+        "-dv",
+        "--divert",
+        help="Diverts to a separate file the content from rows containing a specific "
+        'value at a specific place. The format of this parameter is "<field number>'
+        ',<value to divert on>" (without quotes). This parameter can be repeated '
+        "several times to support different values or different fields. The diverted "
+        "content will be saved to a file whose name will be the output filename with "
+        '"_diverted" added before the file extension.',
+        action="append",
         required=False,
         default=[],
     )
@@ -564,6 +617,7 @@ def process(
     date_field_to_report_on=None,
     locale="",
     truncate=None,
+    divert=None,
 ):
     # By default, set to the user's default locale, used to appropriately handle
     # Decimal separators
@@ -582,16 +636,35 @@ def process(
                     "Exiting..." % (t, len(config))
                 )
                 sys.exit(26)
+    if divert:
+        for d in divert.keys():
+            if d > len(config):
+                logging.critical(
+                    "The value %d passed as field ID in the `--divert` argument is "
+                    "invalid, it is higher than the %d fields defined in the "
+                    "configuration file. Exiting..." % (d, len(config))
+                )
+                sys.exit(30)
 
     input_content = read_input_file(
         input, delimiter, quotechar, skip_header, skip_footer
     )
 
-    (output_content, oldest_date, most_recent_date) = convert_content(
-        input_content, config, date_field_to_report_on, truncate
+    (
+        output_content,
+        diverted_output_content,
+        oldest_date,
+        most_recent_date,
+    ) = convert_content(
+        input_content, config, date_field_to_report_on, truncate, divert
     )
 
     write_output_file(output_content, output)
+    if diverted_output_content:
+        # Save the diverted content to its separate file with "_diverted" added before
+        # the extension
+        diverted_output = "%s_diverted%s" % (os.path.splitext(output))
+        write_output_file(diverted_output_content, diverted_output)
 
     return (len(input_content), oldest_date, most_recent_date)
 
@@ -612,6 +685,7 @@ def init():
             None,
             args.locale,
             args.truncate,
+            args.divert,
         )
 
 

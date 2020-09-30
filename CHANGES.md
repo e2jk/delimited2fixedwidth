@@ -11,6 +11,7 @@ Non-breaking changes:
   * `Date (MM.DD.YYYY to YYYYMMDD)`
   * `Date (YYYYMMDD to MM-DD-YYYY)`
 * New format `Keep numeric` that strips all non-numeric characters from an input value
+* New `--divert` argument to divert to a separate file the content from rows containing specific values
 
 v1.0.6 (2020-09-17)
 ===================
