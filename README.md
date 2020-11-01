@@ -203,6 +203,6 @@ Create the Docker image and publish it to Docker Hub
 
 Run:
 
-* `docker build -t e2jk/delimited2fixedwidth:<version> --rm .` to build the Docker image.
+* `docker build -t e2jk/delimited2fixedwidth:latest -t e2jk/delimited2fixedwidth:<version> --rm .` to build the Docker image.
 * `docker run --rm e2jk/delimited2fixedwidth:<version>` to test the Docker image locally.
 * `docker push e2jk/delimited2fixedwidth:<version>` to push the Docker image to Docker Hub.
