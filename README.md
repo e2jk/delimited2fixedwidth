@@ -205,4 +205,4 @@ Run:
 
 * `docker build -t e2jk/delimited2fixedwidth:latest -t e2jk/delimited2fixedwidth:<version> --rm .` to build the Docker image.
 * `docker run --rm e2jk/delimited2fixedwidth:<version>` to test the Docker image locally.
-* `docker push e2jk/delimited2fixedwidth:<version>` to push the Docker image to Docker Hub.
+* `docker push e2jk/delimited2fixedwidth:latest` and `docker push e2jk/delimited2fixedwidth:<version>` to push the Docker image to Docker Hub.
