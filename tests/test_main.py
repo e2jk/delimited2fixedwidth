@@ -452,7 +452,7 @@ class TestConvertContent(unittest.TestCase):
         (output_content, _, _, _) = target.convert_content(input_content, config)
         expected_output = [
             "0142This is just text   202006200000000000",
-            "2247Short text                  0000000000",
+            "2247Short text          000000000000000000",
         ]
         self.assertEqual(output_content, expected_output)
 
@@ -522,11 +522,11 @@ class TestConvertContent(unittest.TestCase):
         )
         expected_output = [
             "0142This is just text   202006200000000000",
-            "2247Short text                  0000000000",
+            "2247Short text          000000000000000000",
         ]
         self.assertEqual(output_content, expected_output)
         expected_diverted_output_content = [
-            "1357Hello                       0000000000",
+            "1357Hello               000000000000000000",
             "0934Hello again         202011290000000000",
         ]
         self.assertEqual(diverted_output_content, expected_diverted_output_content)
@@ -955,6 +955,48 @@ class TestPadOutputValue(unittest.TestCase):
         """
         output_value = target.pad_output_value(22, "Text", 10)
         self.assertEqual(output_value, "22        ")
+
+    def test_pad_output_value_integer_empty(self):
+        """
+        Test padding an empty Integer
+        """
+        output_value = target.pad_output_value("", "Integer", 7)
+        self.assertEqual(output_value, "0000000")
+
+    def test_pad_output_value_decimal_empty(self):
+        """
+        Test padding an empty Decimal
+        """
+        output_value = target.pad_output_value("", "Decimal", 5)
+        self.assertEqual(output_value, "00000")
+
+    def test_pad_output_value_keep_numeric_empty(self):
+        """
+        Test padding an empty Keep numeric
+        """
+        output_value = target.pad_output_value("", "Keep numeric", 6)
+        self.assertEqual(output_value, "000000")
+
+    def test_pad_output_value_text_empty(self):
+        """
+        Test padding an empty Text
+        """
+        output_value = target.pad_output_value("", "Text", 3)
+        self.assertEqual(output_value, "   ")
+
+    def test_pad_output_value_date_empty(self):
+        """
+        Test padding an empty Date
+        """
+        output_value = target.pad_output_value("", "Date (MMDDYYYY to YYYYMMDD)", 8)
+        self.assertEqual(output_value, "00000000")
+
+    def test_pad_output_value_time_empty(self):
+        """
+        Test padding an empty Time
+        """
+        output_value = target.pad_output_value("", "Time", 4)
+        self.assertEqual(output_value, "0000")
 
 
 class TestGetVersion(unittest.TestCase):

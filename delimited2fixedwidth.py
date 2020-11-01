@@ -42,7 +42,16 @@ def write_output_file(output_content, output_file):
 
 
 def pad_output_value(val, output_format, length):
-    if output_format in ("Integer", "Decimal", "Keep numeric"):
+    if (
+        output_format
+        in (
+            "Integer",
+            "Decimal",
+            "Keep numeric",
+            "Time",
+        )
+        or output_format.startswith("Date (")
+    ):
         # Numbers get padded with 0's added in front (to the left)
         val = str(val).zfill(length)
     else:

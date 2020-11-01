@@ -3,6 +3,10 @@ These are the changes brought in each versions:
 
 v1.0.8 (TBD)
 ===================
+Breaking changes:
+-----------------
+* Date and Time fields now default/pad to 0's instead of spaces
+
 Non-breaking changes:
 ---------------------
 * The program can now be ran in a Docker container: https://hub.docker.com/r/e2jk/delimited2fixedwidth
