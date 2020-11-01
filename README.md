@@ -23,6 +23,12 @@ The program can also be installed from the Python Package Index:
 pip install delimited2fixedwidth
 ```
 
+Or it can be downloaded and ran directly from the [Docker Hub](https://hub.docker.com/r/e2jk/delimited2fixedwidth):
+
+```
+docker run --rm e2jk/delimited2fixedwidth [add parameters here]
+```
+
 See below [how to install from source](#how-to-install-from-source).
 
 Configuration file
@@ -80,6 +86,12 @@ An example run of the program could look like this:
 
 ```
 delimited2fixedwidth.exe --input data\input_file.txt --config data\configuration_file.xlsx --output data\output_file.txt --delimiter "^" --skip-header 1 --skip-footer 1
+```
+
+Or it can be ran from the [Docker Hub](https://hub.docker.com/r/e2jk/delimited2fixedwidth):
+
+```
+docker run --rm e2jk/delimited2fixedwidth [add parameters here]
 ```
 
 If you've installed the program following [how to install from source](#how-to-install-from-source), you can run the program with `pipenv run python delimited2fixedwidth.py`.
@@ -185,3 +197,12 @@ pipenv lock -r > requirements-no-dev.txt
 pipenv run python setup.py sdist bdist_wheel
 pipenv run python -m twine upload dist/*
 ```
+
+Create the Docker image and publish it to Docker Hub
+----------------------------------------------------
+
+Run:
+
+* `docker build -t e2jk/delimited2fixedwidth:<version> --rm .` to build the Docker image.
+* `docker run --rm e2jk/delimited2fixedwidth:<version>` to test the Docker image locally.
+* `docker push e2jk/delimited2fixedwidth:<version>` to push the Docker image to Docker Hub.
