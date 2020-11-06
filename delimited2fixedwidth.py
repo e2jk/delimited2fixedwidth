@@ -650,6 +650,12 @@ def parse_args(arguments):
             "the `--overwrite-file` argument to allow overwriting. Exiting..."
         )
         sys.exit(11)
+    if args.overwrite_file and not args.output:
+        logging.critical(
+            "The `--overwrite-file` argument can only be used in combination with "
+            "the `--output` argument. Exiting..."
+        )
+        sys.exit(34)
     validate_shared_args(args)
 
     logging.debug("These are the parsed arguments:\n'%s'" % args)

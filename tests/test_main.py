@@ -1283,6 +1283,26 @@ class TestParseArgs(unittest.TestCase):
         os.close(temp_fd)
         os.remove(temp_output_file)
 
+    def test_parse_args_overwrite_file_without_output(self):
+        """
+        Test running the script with --overwrite_file without --output
+        """
+        config_file = "tests/sample_files/configuration1.xlsx"
+        with self.assertRaises(SystemExit) as cm1, self.assertLogs(
+            level="CRITICAL"
+        ) as cm2:
+            target.parse_args(
+                ["-id", "aa", "-od", "aa", "--overwrite-file", "-c", config_file]
+            )
+        self.assertEqual(cm1.exception.code, 34)
+        self.assertEqual(
+            cm2.output,
+            [
+                "CRITICAL:root:The `--overwrite-file` argument can only be used in "
+                "combination with the `--output` argument. Exiting..."
+            ],
+        )
+
     def test_parse_args_skip_header_str(self):
         """
         Test running the script with an invalid --skip-header parameter

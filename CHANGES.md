@@ -7,6 +7,7 @@ Non-breaking changes:
 ---------------------
 * Process all the files in a directory as multiple input files through the new arguments `--input-directory` and `--output-directory`
 * `--output` moved back as a shared argument (relevant for scripts using delimited2fixedwidth as an imported library), partially reverting a change introduced in v1.0.2
+* Ensure the `--overwrite-file` argument is only used with `--output`
 
 v1.0.8 (2020-11-02)
 ===================
