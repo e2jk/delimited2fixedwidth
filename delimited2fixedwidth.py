@@ -760,7 +760,7 @@ def init():
                 input_output_files.append((input_file, output_file))
 
         for (input_file, output_file) in input_output_files:
-            logging.info("processing file %s", input_file)
+            logging.info("Processing input file %s", input_file)
             process(
                 input_file,
                 output_file,
