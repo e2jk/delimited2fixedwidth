@@ -8,6 +8,7 @@ import csv
 import datetime
 import logging
 import os
+import pathlib
 import re
 import sys
 from locale import LC_NUMERIC, atof, setlocale
@@ -443,10 +444,36 @@ def validate_divert(divert):
     return divert_values
 
 
+def validate_input_output_args(args):
+    if args.input:
+        if not os.path.isfile(args.input):
+            logging.critical("The specified input file does not exist. Exiting...")
+            sys.exit(10)
+        if not args.output:
+            logging.critical(
+                "The `--output` argument must be specified in addition to the "
+                "`--input` argument. Exiting..."
+            )
+            sys.exit(31)
+    elif args.input_directory:
+        if not args.output_directory:
+            logging.critical(
+                "The `--output_directory` argument must be specified in addition to "
+                "the `--input_directory` argument. Exiting..."
+            )
+            sys.exit(32)
+        if not os.path.isdir(args.input_directory):
+            logging.critical(
+                "The value passed as `--input-directory` argument is not a valid "
+                "folder path. Exiting..."
+            )
+            sys.exit(33)
+        if not os.path.isdir(args.output_directory):
+            pathlib.Path(args.output_directory).mkdir(parents=True, exist_ok=True)
+
+
 def validate_shared_args(args):
-    if not os.path.isfile(args.input):
-        logging.critical("The specified input file does not exist. Exiting...")
-        sys.exit(10)
+    validate_input_output_args(args)
     if not os.path.isfile(args.config):
         logging.critical("The specified configuration file does not exist. Exiting...")
         sys.exit(12)
@@ -479,8 +506,25 @@ def validate_shared_args(args):
 
 
 def add_shared_args(parser):
-    parser.add_argument(
-        "-i", "--input", help="Specify the input file", action="store", required=True
+    input_group = parser.add_mutually_exclusive_group(required=True)
+    input_group.add_argument(
+        "-i", "--input", help="Specify the input file", action="store"
+    )
+    input_group.add_argument(
+        "-id",
+        "--input-directory",
+        help="Specify the input directory from which to process input files",
+        action="store",
+    )
+    output_group = parser.add_mutually_exclusive_group(required=True)
+    output_group.add_argument(
+        "-o", "--output", help="Specify the output file", action="store"
+    )
+    output_group.add_argument(
+        "-od",
+        "--output-directory",
+        help="The directory in which to create the output files",
+        action="store",
     )
     parser.add_argument(
         "-c",
@@ -566,9 +610,6 @@ def parse_args(arguments):
     )
 
     parser.add_argument(
-        "-o", "--output", help="Specify the output file", action="store", required=True
-    )
-    parser.add_argument(
         "-x",
         "--overwrite-file",
         help="Allow to overwrite the output file",
@@ -603,7 +644,7 @@ def parse_args(arguments):
         args.logging_level = logging.getLevelName(args.loglevel)
 
     # Validate if the arguments are used correctly
-    if os.path.isfile(args.output) and not args.overwrite_file:
+    if args.output and os.path.isfile(args.output) and not args.overwrite_file:
         logging.critical(
             "The specified output file does already exist, will NOT overwrite. Add "
             "the `--overwrite-file` argument to allow overwriting. Exiting..."
@@ -683,19 +724,35 @@ def init():
         # Parse the provided command-line arguments
         args = parse_args(sys.argv[1:])
 
-        process(
-            args.input,
-            args.output,
-            args.config,
-            args.delimiter,
-            args.quotechar,
-            args.skip_header,
-            args.skip_footer,
-            None,
-            args.locale,
-            args.truncate,
-            args.divert,
-        )
+        input_output_files = []
+        if args.input:
+            # Just a single input/output files combination
+            input_output_files = [(args.input, args.output)]
+        elif args.input_directory:
+            # Process all files in that top-level directory (no subdirectories)
+            (_, _, filenames) = next(os.walk(args.input_directory))
+            for ifile in filenames:
+                input_file = os.path.join(args.input_directory, ifile)
+                output_file = os.path.join(
+                    args.output_directory, "%s_processed%s" % (os.path.splitext(ifile))
+                )
+                input_output_files.append((input_file, output_file))
+
+        for (input_file, output_file) in input_output_files:
+            logging.info("processing file %s", input_file)
+            process(
+                input_file,
+                output_file,
+                args.config,
+                args.delimiter,
+                args.quotechar,
+                args.skip_header,
+                args.skip_footer,
+                None,
+                args.locale,
+                args.truncate,
+                args.divert,
+            )
 
 
 init()

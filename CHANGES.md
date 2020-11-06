@@ -5,7 +5,8 @@ v1.0.9 (TBD)
 ===================
 Non-breaking changes:
 ---------------------
-*
+* Process all the files in a directory as multiple input files through the new arguments `--input-directory` and `--output-directory`
+* `--output` moved back as a shared argument (relevant for scripts using delimited2fixedwidth as an imported library), partially reverting a change introduced in v1.0.2
 
 v1.0.8 (2020-11-02)
 ===================
@@ -70,7 +71,7 @@ v1.0.2 (2020-09-07)
 ===================
 Non-breaking changes:
 ---------------------
-* Remove --output and --overwrite-file from the shared arguments
+* Remove `--output` and `--overwrite-file` from the shared arguments (relevant for scripts using delimited2fixedwidth as an imported library)
 
 v1.0.1 (2020-09-06)
 ===================

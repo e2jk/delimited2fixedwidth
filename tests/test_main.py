@@ -14,6 +14,7 @@ import io
 import logging
 import os
 import re
+import shutil
 import sys
 import tempfile
 import unittest
@@ -1040,8 +1041,8 @@ class TestParseArgs(unittest.TestCase):
             target.parse_args([])
         self.assertEqual(cm.exception.code, 2)
         self.assertTrue(
-            "error: the following arguments are required: -o/--output, "
-            "-i/--input, -c/--config" in f.getvalue()
+            "error: the following arguments are required: "
+            "-c/--config" in f.getvalue()
         )
 
     def test_parse_args_valid_arguments(self):
@@ -1103,10 +1104,12 @@ class TestParseArgs(unittest.TestCase):
                 "delimiter=',', "
                 "divert={2: ['abc', 'def'], 3: ['ghi,k lm']}, "
                 "input='tests/sample_files/input1.txt', "
+                "input_directory=None, "
                 "locale='', "
                 "logging_level='DEBUG', "
                 "loglevel=10, "
                 "output='tests/sample_files/nonexistent_test_output.txt', "
+                "output_directory=None, "
                 "overwrite_file=False, "
                 "quotechar='\"', "
                 "skip_footer=0, "
@@ -1135,8 +1138,95 @@ class TestParseArgs(unittest.TestCase):
         self.assertEqual(cm1.exception.code, 10)
         self.assertEqual(
             cm2.output,
-            ["CRITICAL:root:The specified input file does not exist. " "Exiting..."],
+            ["CRITICAL:root:The specified input file does not exist. Exiting..."],
         )
+
+    def test_parse_args_input_file_without_output_file(self):
+        """
+        Test running the script with -i without -o parameter
+        """
+        input_file = "tests/sample_files/nonexistent_input.txt"
+        config_file = "tests/sample_files/configuration1.xlsx"
+        # Confirm the input file doesn't exist
+        self.assertFalse(os.path.isfile(input_file))
+        f = io.StringIO()
+        with self.assertRaises(SystemExit) as cm, contextlib.redirect_stderr(f):
+            target.parse_args(["-i", input_file, "-c", config_file])
+        self.assertEqual(cm.exception.code, 2)
+        self.assertTrue(
+            "error: one of the arguments -o/--output -od/--output-directory is "
+            "required" in f.getvalue()
+        )
+
+    def test_parse_args_input_file_output_directory(self):
+        """
+        Test running the script with -i with -od instead of -o parameter
+        """
+        input_file = "tests/sample_files/input1.txt"
+        config_file = "tests/sample_files/configuration1.xlsx"
+        with self.assertRaises(SystemExit) as cm1, self.assertLogs(
+            level="CRITICAL"
+        ) as cm2:
+            target.parse_args(["-i", input_file, "-od", "", "-c", config_file])
+        self.assertEqual(cm1.exception.code, 31)
+        self.assertEqual(
+            cm2.output,
+            [
+                "CRITICAL:root:The `--output` argument must be specified in "
+                "addition to the `--input` argument. Exiting..."
+            ],
+        )
+
+    def test_parse_args_input_directory_output_file(self):
+        """
+        Test running the script with -id with -o instead of -od parameter
+        """
+        config_file = "tests/sample_files/configuration1.xlsx"
+        with self.assertRaises(SystemExit) as cm1, self.assertLogs(
+            level="CRITICAL"
+        ) as cm2:
+            target.parse_args(["-id", "aa", "-o", "", "-c", config_file])
+        self.assertEqual(cm1.exception.code, 32)
+        self.assertEqual(
+            cm2.output,
+            [
+                "CRITICAL:root:The `--output_directory` argument must be specified "
+                "in addition to the `--input_directory` argument. Exiting..."
+            ],
+        )
+
+    def test_parse_args_nonexistent_input_directory(self):
+        """
+        Test running the script with nonexistent --input-directory
+        """
+        config_file = "tests/sample_files/configuration1.xlsx"
+        with self.assertRaises(SystemExit) as cm1, self.assertLogs(
+            level="CRITICAL"
+        ) as cm2:
+            target.parse_args(["-id", "aa", "-od", "aa", "-c", config_file])
+        self.assertEqual(cm1.exception.code, 33)
+        self.assertEqual(
+            cm2.output,
+            [
+                "CRITICAL:root:The value passed as `--input-directory` argument is "
+                "not a valid folder path. Exiting..."
+            ],
+        )
+
+    def test_parse_args_nonexistent_output_directory(self):
+        """
+        Test running the script with a nonexistent --output-directory
+        """
+        input_directory = "tests/sample_files"
+        output_directory = "tests/sample_files/nonexistent_directory"
+        config_file = "tests/sample_files/configuration1.xlsx"
+        self.assertFalse(os.path.isdir(output_directory))
+        target.parse_args(
+            ["-id", input_directory, "-od", output_directory, "-c", config_file]
+        )
+        self.assertTrue(os.path.isdir(output_directory))
+        shutil.rmtree(output_directory)
+        self.assertFalse(os.path.isdir(output_directory))
 
     def test_parse_args_invalid_config_file(self):
         """
@@ -1642,13 +1732,13 @@ class TestInit(unittest.TestCase):
             target.init()
         self.assertEqual(cm.exception.code, 2)
         self.assertTrue(
-            "error: the following arguments are required: -o/--output, "
-            "-i/--input, -c/--config" in f.getvalue()
+            "error: the following arguments are required: "
+            "-c/--config" in f.getvalue()
         )
 
-    def test_init_valid(self):
+    def test_init_valid_input_output(self):
         """
-        Test the init code with valid parameters
+        Test the init code with valid --input/--output parameters
         """
         (temp_fd, output_file) = tempfile.mkstemp()
         self.assertTrue(os.path.isfile(output_file))
@@ -1672,7 +1762,7 @@ class TestInit(unittest.TestCase):
             "C",  # Default C locale
         ]
         target.init()
-        # Confirm the output file has been written and its content
+        # Confirm the output file has been written and check its content
         self.assertTrue(os.path.isfile(output_file))
         with open(output_file) as f:
             s = f.read()
@@ -1692,6 +1782,53 @@ class TestInit(unittest.TestCase):
         os.close(temp_fd)
         os.remove(output_file)
         self.assertFalse(os.path.isfile(output_file))
+
+    def test_init_valid_input_directory_output_directory(self):
+        """
+        Test the init code with valid --input-directory/--output-directory parameters
+        """
+        output_directory = "tests/sample_files/multiple/processed"
+        self.assertFalse(os.path.isdir(output_directory))
+        target.__name__ = "__main__"
+        target.sys.argv = [
+            "scriptname.py",
+            "--input-directory",
+            "tests/sample_files/multiple",
+            "--output-directory",
+            output_directory,
+            "--config",
+            "tests/sample_files/configuration1.xlsx",
+            "--delimiter",
+            "^",
+            "--skip-header",
+            "1",
+            "--skip-footer",
+            "1",
+            "--locale",
+            "C",  # Default C locale
+        ]
+        target.init()
+        self.assertTrue(os.path.isdir(output_directory))
+        # Confirm the output files has been written and check its content
+        for i in ("", "_copy1", "_copy2"):
+            output_file = os.path.join(output_directory, "input1%s_processed.txt" % i)
+            self.assertTrue(os.path.isfile(output_file))
+            with open(output_file) as f:
+                s = f.read()
+                expected_output = (
+                    "0004000133034205413540000100202007312006"
+                    "                                        "
+                    "Leendert MOLENDIJK [90038979]           \n"
+                    "0004000133034005407940000157202003051022"
+                    "                                        "
+                    "Leendert MOLENDIJK [90038979]           \n"
+                    "0004000133034105409340022139202012252006"
+                    "                                        "
+                    "Leendert MOLENDIJK [90038979]           "
+                )
+                self.assertEqual(expected_output, s)
+        shutil.rmtree(output_directory)
+        self.assertFalse(os.path.isdir(output_directory))
 
 
 class TestLicense(unittest.TestCase):

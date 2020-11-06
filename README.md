@@ -99,19 +99,24 @@ If you've installed the program following [how to install from source](#how-to-i
 Program help information
 ------------------------
 ```
-usage: delimited2fixedwidth.py [-h] [--version] -o OUTPUT [-x] -i INPUT -c CONFIG [-dl DELIMITER] [-q QUOTECHAR]
-                               [-sh SKIP_HEADER] [-sf SKIP_FOOTER] [-l LOCALE] [-t TRUNCATE] [-dv DIVERT] [-d] [-v]
+usage: delimited2fixedwidth.py [-h] [--version] [-x] (-i INPUT | -id INPUT_DIRECTORY) (-o OUTPUT | -od OUTPUT_DIRECTORY) -c CONFIG
+                               [-dl DELIMITER] [-q QUOTECHAR] [-sh SKIP_HEADER] [-sf SKIP_FOOTER] [-l LOCALE] [-t TRUNCATE] [-dv DIVERT]
+                               [-d] [-v]
 
 Convert files from delimited (e.g. CSV) to fixed width format
 
 optional arguments:
   -h, --help            show this help message and exit
   --version             show program's version number and exit
-  -o OUTPUT, --output OUTPUT
-                        Specify the output file
   -x, --overwrite-file  Allow to overwrite the output file
   -i INPUT, --input INPUT
                         Specify the input file
+  -id INPUT_DIRECTORY, --input-directory INPUT_DIRECTORY
+                        Specify the input directory from which to process input files
+  -o OUTPUT, --output OUTPUT
+                        Specify the output file
+  -od OUTPUT_DIRECTORY, --output-directory OUTPUT_DIRECTORY
+                        The directory in which to create the output files
   -c CONFIG, --config CONFIG
                         Specify the configuration file
   -dl DELIMITER, --delimiter DELIMITER
