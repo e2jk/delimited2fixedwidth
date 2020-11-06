@@ -450,12 +450,6 @@ def validate_input_output_args(args):
         if not os.path.isfile(args.input):
             logging.critical("The specified input file does not exist. Exiting...")
             sys.exit(10)
-        if not args.output:
-            logging.critical(
-                "The `--output` argument must be specified in addition to the "
-                "`--input` argument. Exiting..."
-            )
-            sys.exit(31)
     elif args.input_directory:
         if not args.output_directory:
             logging.critical(
@@ -671,6 +665,12 @@ def parse_args(arguments):
             "the `--output` argument. Exiting..."
         )
         sys.exit(34)
+    if args.input and not args.output:
+        logging.critical(
+            "The `--output` argument must be specified in addition to the "
+            "`--input` argument. Exiting..."
+        )
+        sys.exit(31)
     validate_shared_args(args)
 
     logging.debug("These are the parsed arguments:\n'%s'" % args)
