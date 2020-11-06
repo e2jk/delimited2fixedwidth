@@ -10,6 +10,7 @@ import logging
 import os
 import pathlib
 import re
+import shutil
 import sys
 from locale import LC_NUMERIC, atof, setlocale
 
@@ -474,6 +475,12 @@ def validate_input_output_args(args):
 
 def validate_shared_args(args):
     validate_input_output_args(args)
+    if args.move_input_files and not args.output_directory:
+        logging.critical(
+            "The `--move-input-files` argument can only be used in combination with "
+            "the `--output-directory` argument. Exiting..."
+        )
+        sys.exit(35)
     if not os.path.isfile(args.config):
         logging.critical("The specified configuration file does not exist. Exiting...")
         sys.exit(12)
@@ -525,6 +532,14 @@ def add_shared_args(parser):
         "--output-directory",
         help="The directory in which to create the output files",
         action="store",
+    )
+    parser.add_argument(
+        "-m",
+        "--move-input-files",
+        help="Move the input files to the output directory after processing. Must be "
+        "used in conjunction with the `--output-directory` argument.",
+        action="store_true",
+        required=False,
     )
     parser.add_argument(
         "-c",
@@ -759,6 +774,8 @@ def init():
                 args.truncate,
                 args.divert,
             )
+            if args.move_input_files:
+                shutil.move(input_file, args.output_directory)
 
 
 init()

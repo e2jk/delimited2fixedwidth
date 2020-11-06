@@ -119,6 +119,16 @@ def get_expected_supported_output_formats():
     ]
 
 
+def num_files_in_directory(dir):
+    return len(
+        [
+            name
+            for name in os.listdir(dir)
+            if os.path.isfile(os.path.join(dir, name))
+        ]
+    )
+
+
 class TestWriteOutputFile(unittest.TestCase):
     def test_write_output_file(self):
         """
@@ -1108,6 +1118,7 @@ class TestParseArgs(unittest.TestCase):
                 "locale='', "
                 "logging_level='DEBUG', "
                 "loglevel=10, "
+                "move_input_files=False, "
                 "output='tests/sample_files/nonexistent_test_output.txt', "
                 "output_directory=None, "
                 "overwrite_file=False, "
@@ -1300,6 +1311,27 @@ class TestParseArgs(unittest.TestCase):
             [
                 "CRITICAL:root:The `--overwrite-file` argument can only be used in "
                 "combination with the `--output` argument. Exiting..."
+            ],
+        )
+
+    def test_parse_args_move_input_files_without_output_directory(self):
+        """
+        Test running the script with --move-input-files without --output-directory
+        """
+        input_file = "tests/sample_files/input1.txt"
+        config_file = "tests/sample_files/configuration1.xlsx"
+        with self.assertRaises(SystemExit) as cm1, self.assertLogs(
+            level="CRITICAL"
+        ) as cm2:
+            target.parse_args(
+                ["-i", input_file, "-o", "aa", "--move-input-files", "-c", config_file]
+            )
+        self.assertEqual(cm1.exception.code, 35)
+        self.assertEqual(
+            cm2.output,
+            [
+                "CRITICAL:root:The `--move-input-files` argument can only be used "
+                "in combination with the `--output-directory` argument. Exiting..."
             ],
         )
 
@@ -1806,16 +1838,20 @@ class TestInit(unittest.TestCase):
     def test_init_valid_input_directory_output_directory(self):
         """
         Test the init code with valid --input-directory/--output-directory parameters
+        and --move-input-files
         """
+        input_directory = "tests/sample_files/multiple"
         output_directory = "tests/sample_files/multiple/processed"
+        self.assertEqual(num_files_in_directory(input_directory), 3)
         self.assertFalse(os.path.isdir(output_directory))
         target.__name__ = "__main__"
         target.sys.argv = [
             "scriptname.py",
             "--input-directory",
-            "tests/sample_files/multiple",
+            input_directory,
             "--output-directory",
             output_directory,
+            "--move-input-files",
             "--config",
             "tests/sample_files/configuration1.xlsx",
             "--delimiter",
@@ -1828,9 +1864,14 @@ class TestInit(unittest.TestCase):
             "C",  # Default C locale
         ]
         target.init()
+        self.assertEqual(num_files_in_directory(input_directory), 0)
         self.assertTrue(os.path.isdir(output_directory))
         # Confirm the output files has been written and check its content
         for i in ("", "_copy1", "_copy2"):
+            # Move the input files back to the input directory
+            input_file = os.path.join(output_directory, "input1%s.txt" % i)
+            shutil.move(input_file, input_directory)
+            # Check the content of the output files
             output_file = os.path.join(output_directory, "input1%s_processed.txt" % i)
             self.assertTrue(os.path.isfile(output_file))
             with open(output_file) as f:
@@ -1847,6 +1888,7 @@ class TestInit(unittest.TestCase):
                     "Leendert MOLENDIJK [90038979]           "
                 )
                 self.assertEqual(expected_output, s)
+        self.assertEqual(num_files_in_directory(input_directory), 3)
         shutil.rmtree(output_directory)
         self.assertFalse(os.path.isdir(output_directory))
 

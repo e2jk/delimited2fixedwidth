@@ -99,7 +99,7 @@ If you've installed the program following [how to install from source](#how-to-i
 Program help information
 ------------------------
 ```
-usage: delimited2fixedwidth.py [-h] [--version] [-x] (-i INPUT | -id INPUT_DIRECTORY) (-o OUTPUT | -od OUTPUT_DIRECTORY) -c CONFIG
+usage: delimited2fixedwidth.py [-h] [--version] [-x] (-i INPUT | -id INPUT_DIRECTORY) (-o OUTPUT | -od OUTPUT_DIRECTORY) [-m] -c CONFIG
                                [-dl DELIMITER] [-q QUOTECHAR] [-sh SKIP_HEADER] [-sf SKIP_FOOTER] [-l LOCALE] [-t TRUNCATE] [-dv DIVERT]
                                [-d] [-v]
 
@@ -117,6 +117,9 @@ optional arguments:
                         Specify the output file
   -od OUTPUT_DIRECTORY, --output-directory OUTPUT_DIRECTORY
                         The directory in which to create the output files
+  -m, --move-input-files
+                        Move the input files to the output directory after processing. Must be used in conjunction with the `--output-
+                        directory` argument.
   -c CONFIG, --config CONFIG
                         Specify the configuration file
   -dl DELIMITER, --delimiter DELIMITER
