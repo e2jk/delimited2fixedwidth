@@ -121,11 +121,7 @@ def get_expected_supported_output_formats():
 
 def num_files_in_directory(dir):
     return len(
-        [
-            name
-            for name in os.listdir(dir)
-            if os.path.isfile(os.path.join(dir, name))
-        ]
+        [name for name in os.listdir(dir) if os.path.isfile(os.path.join(dir, name))]
     )
 
 
@@ -260,7 +256,7 @@ class TestReadInputFile(unittest.TestCase):
         skip_header = 1
         skip_footer = 1
         input_content = target.read_input_file(
-            input_file, delimiter, quotechar, skip_header, skip_footer
+            input_file, delimiter, quotechar, skip_header, skip_footer, "utf-8"
         )
         expected_output = [
             [
@@ -307,8 +303,39 @@ class TestReadInputFile(unittest.TestCase):
         skip_footer = 1
         with self.assertRaises(FileNotFoundError):
             target.read_input_file(
-                input_file, delimiter, quotechar, skip_header, skip_footer
+                input_file, delimiter, quotechar, skip_header, skip_footer, "utf-8"
             )
+
+    def test_read_input_file_encoding(self):
+        """
+        Test reading a valid input file with non-UTF-8 encoding
+        """
+        input_file = "tests/sample_files/input_WINDOWS-1252.txt"
+        delimiter = "^"
+        quotechar = '"'
+        skip_header = 1
+        skip_footer = 1
+        with self.assertRaises(UnicodeDecodeError):
+            target.read_input_file(
+                input_file, delimiter, quotechar, skip_header, skip_footer, "utf-8"
+            )
+        input_content = target.read_input_file(
+            input_file, delimiter, quotechar, skip_header, skip_footer, "WINDOWS-1252"
+        )
+        expected_output = [
+            "DOSAGE DU MAGNÉSIUM (MAXIMUM 1)",
+            "DÉTERMINATION D'IGE SPÉCIFIQUE PAR ANTIGÈNE (MAXIMUM 6)(RÈGLE DE "
+            "CUMUL 47)",
+            "DÉTERMINATION D'IGE SPÉCIFIQUE PAR ANTIGÈNE (MAXIMUM 6)(RÈGLE DE "
+            "CUMUL 47)",
+            "DOSAGE DU POTASSIUM (MAXIMUM 1) (RÈGLE DE CUMUL 335,  336)",
+            "DOSAGE DU MAGNÉSIUM (MAXIMUM 1)",
+            "HONORAIRES POUR L'EXAMEN ANATOMO-PATHOLOGIQUE PAR INCLUSION ET COUPE "
+            "D'AUTANT DE PRÉLÈVEMENTS QUE ÉCESSAIRE,  QUEL QUE SOIT LE NOMBRE DE "
+            "COUPES ET QUEL QUE SOIT LE NOMBRE D'ORGANES EXAMI",
+        ]
+        for idx, row in enumerate(input_content):
+            self.assertEqual(row[17], expected_output[idx])
 
 
 class TestConvertContent(unittest.TestCase):
@@ -1115,6 +1142,7 @@ class TestParseArgs(unittest.TestCase):
                 "divert={2: ['abc', 'def'], 3: ['ghi,k lm']}, "
                 "input='tests/sample_files/input1.txt', "
                 "input_directory=None, "
+                "input_encoding='utf-8', "
                 "locale='', "
                 "logging_level='DEBUG', "
                 "loglevel=10, "

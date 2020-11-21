@@ -4,6 +4,7 @@
 #    This file is part of delimited2fixedwidth and is MIT-licensed.
 
 import argparse
+import codecs
 import csv
 import datetime
 import logging
@@ -315,9 +316,11 @@ def convert_content(
     return (output_content, diverted_output_content, oldest_date, most_recent_date)
 
 
-def read_input_file(input_file, delimiter, quotechar, skip_header, skip_footer):
+def read_input_file(
+    input_file, delimiter, quotechar, skip_header, skip_footer, encoding
+):
     content = None
-    with open(input_file, newline="") as csvfile:
+    with codecs.open(input_file, "r", encoding) as csvfile:
         content = csv.reader(csvfile, delimiter=delimiter, quotechar=quotechar)
         # Skip the header and footer if necessary
         content = list(content)
@@ -517,6 +520,14 @@ def add_shared_args(parser):
         help="Specify the input directory from which to process input files",
         action="store",
     )
+    parser.add_argument(
+        "-ie",
+        "--input-encoding",
+        help="Specify the encoding of the input files (default: 'utf-8')",
+        action="store",
+        required=False,
+        default="utf-8",
+    )
     output_group = parser.add_mutually_exclusive_group(required=True)
     output_group.add_argument(
         "-o", "--output", help="Specify the output file", action="store"
@@ -689,6 +700,7 @@ def process(
     locale="",
     truncate=None,
     divert=None,
+    input_encoding="utf-8",
 ):
     # By default, set to the user's default locale, used to appropriately handle
     # Decimal separators
@@ -718,7 +730,7 @@ def process(
                 sys.exit(30)
 
     input_content = read_input_file(
-        input, delimiter, quotechar, skip_header, skip_footer
+        input, delimiter, quotechar, skip_header, skip_footer, input_encoding
     )
 
     (
@@ -773,6 +785,7 @@ def init():
                 args.locale,
                 args.truncate,
                 args.divert,
+                args.input_encoding,
             )
             if args.move_input_files:
                 shutil.move(input_file, args.output_directory)

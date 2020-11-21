@@ -5,6 +5,7 @@ v1.0.10 (TBD)
 ====================
 Non-breaking changes:
 ---------------------
+* New `--input-encoding` argument to specify the encoding of the input files, defaults to 'utf-8'
 
 v1.0.9 (2020-11-10)
 ===================
