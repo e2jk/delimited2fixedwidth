@@ -11,11 +11,11 @@ with open("requirements-no-dev.txt", "r") as fh:
     if requirements[0].startswith("-i http"):
         requirements.pop(0)
 
-from delimited2fixedwidth import get_version
+from delimited2fixedwidth import __version__
 
 setuptools.setup(
     name="delimited2fixedwidth",
-    version=get_version("__init__.py"),
+    version=__version__,
     author="Emilien Klein",
     author_email="emilien@klein.st",
     description="Convert files from delimited (e.g. CSV) to fixed width format",
