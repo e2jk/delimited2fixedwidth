@@ -1,10 +1,11 @@
 # Changelog
 These are the changes brought in each versions:
 
-v1.0.11 (TBD)
+v1.0.11 (2021-07-09)
 ====================
 Non-breaking changes:
 ---------------------
+* Fix package published on PyPI
 
 v1.0.10 (2020-11-21)
 ====================
