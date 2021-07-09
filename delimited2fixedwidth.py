@@ -17,6 +17,8 @@ from locale import LC_NUMERIC, atof, setlocale
 
 from openpyxl import load_workbook
 
+__version__ = "1.0.11-dev"
+
 SUPPORTED_OUTPUT_FORMATS = None
 
 
@@ -413,15 +415,6 @@ def load_config(config_file):
     return config
 
 
-def get_version(rel_path):
-    with open(rel_path) as f:
-        for line in f.read().splitlines():
-            if line.startswith("__version__"):
-                return line.split('"')[1]
-        else:
-            raise RuntimeError("Unable to find version string.")
-
-
 def validate_divert(divert):
     divert_values = {}
     for d in divert:
@@ -626,7 +619,7 @@ def parse_args(arguments):
     parser.add_argument(
         "--version",
         action="version",
-        version="%s %s" % ("%(prog)s", get_version("__init__.py")),
+        version="%s %s" % ("%(prog)s", __version__),
     )
 
     parser.add_argument(

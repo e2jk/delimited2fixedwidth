@@ -125,6 +125,14 @@ def num_files_in_directory(dir):
     )
 
 
+class TestVersion(unittest.TestCase):
+    def test_version_valid(self):
+        """
+        Validate that both the script and the tests have the same version
+        """
+        self.assertEqual(CURRENT_VERSION, target.__version__)
+
+
 class TestWriteOutputFile(unittest.TestCase):
     def test_write_output_file(self):
         """
@@ -1035,37 +1043,6 @@ class TestPadOutputValue(unittest.TestCase):
         """
         output_value = target.pad_output_value("", "Time", 4)
         self.assertEqual(output_value, "0000")
-
-
-class TestGetVersion(unittest.TestCase):
-    def test_get_version_valid(self):
-        """
-        Test the script's version
-        """
-        version = target.get_version("__init__.py")
-        self.assertEqual(CURRENT_VERSION, version)
-
-    def test_get_version_invalid_file(self):
-        """
-        Test the Exception when getting the version from an invalid file
-        """
-        with self.assertRaises(RuntimeError) as cm:
-            target.get_version("LICENSE")
-        self.assertEqual(str(cm.exception), "Unable to find version string.")
-
-    def test_get_version_nonexistent_file(self):
-        """
-        Test the Exception when getting the version from a nonexistent file
-        """
-        nonexistent_file = "tests/sample_files/nonexistent_test_output.txt"
-        # Confirm the output file doesn't exist
-        if os.path.isfile(nonexistent_file):
-            os.remove(nonexistent_file)
-            self.assertFalse(os.path.isfile(nonexistent_file))
-        with self.assertRaises(FileNotFoundError) as cm:
-            target.get_version(nonexistent_file)
-        expected_output = "[Errno 2] No such file or directory: '%s'" % nonexistent_file
-        self.assertEqual(str(cm.exception), expected_output)
 
 
 class TestParseArgs(unittest.TestCase):
