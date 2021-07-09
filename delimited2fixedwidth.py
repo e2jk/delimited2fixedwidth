@@ -17,7 +17,7 @@ from locale import LC_NUMERIC, atof, setlocale
 
 from openpyxl import load_workbook
 
-__version__ = "1.0.11"
+__version__ = "1.0.12-dev"
 
 SUPPORTED_OUTPUT_FORMATS = None
 
