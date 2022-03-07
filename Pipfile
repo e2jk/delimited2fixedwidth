@@ -14,4 +14,4 @@ isort = "==5.9.2"
 mypy = "==0.910"
 
 [packages]
-openpyxl = "==3.0.7"
+openpyxl = "==3.0.9"
