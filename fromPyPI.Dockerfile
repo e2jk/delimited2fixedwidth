@@ -1,4 +1,4 @@
-FROM python:3.9-slim
+FROM python:3.10-slim
 
 # Install delimited2fixedwidth from PyPI
 RUN pip install --no-cache-dir delimited2fixedwidth
